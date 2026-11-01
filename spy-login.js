@@ -27,6 +27,11 @@
       location.replace('./scurve.html');
       return;
     }
+    if(query.get('return')==='weekly'){
+      const stage=Number.parseInt(query.get('stage')||'1',10);
+      location.replace('./weekly-plan.html?stage='+(Number.isInteger(stage)&&stage>=1&&stage<=13?stage:1));
+      return;
+    }
     if(typeof showTab==='function'){
       const initialTab=query.get('tab');
       showTab(initialTab==='plan'?'plan':'home');
