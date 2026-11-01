@@ -68,6 +68,13 @@
     });
     document.querySelectorAll('#taskDocuments .actions button').forEach((btn,i)=>iconifyButton(btn,i===0?'plus':i===1?'documents':btn.textContent.includes('เทส')?'test':'filecheck'));
   }
+  // Prefer the approved original logo file as favicon when it has been uploaded.
+  const logoCheck=new Image();
+  logoCheck.onload=function(){
+    const link=document.querySelector('link[rel="icon"]');
+    if(link){link.href='logo.png';link.type='image/png'}
+  };
+  logoCheck.src='logo.png';
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',enhance,{once:true});else enhance();
   let timer;
   document.addEventListener('click',function(event){
