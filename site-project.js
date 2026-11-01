@@ -82,6 +82,12 @@ function addStageBadges(){
 }
 function defaultDocs(){
  const arr=D.documents.map(d=>({...d,status:'ยังไม่ได้ส่ง',number:'',sent:'',fileName:''}));
+ for(let i=1;i<=13;i++){
+  arr.push({id:'handover-'+i,name:'หนังสือส่งมอบงาน / ขอให้ตรวจรับงวดที่ '+i,
+    source:'แนบแบ่งงวด หน้า '+D.installments[i-1].page,stage:i,
+    rule:'ต้องมีผลงานและเอกสารตามเงื่อนไขครบก่อนขอเบิก',
+    status:'ยังไม่ได้ส่ง',number:'',sent:'',fileName:''});
+ }
  for(let i=3;i<=13;i++)for(const t of ['Shop Drawing','อนุมัติวัสดุ']){
   arr.push({id:(t==='Shop Drawing'?'shop':'mat')+i,name:(t==='Shop Drawing'?'ขออนุมัติ Shop Drawing':'ขออนุมัติวัสดุ')+' สำหรับงวด '+i,
     source:'แนบแบ่งงวด หน้า '+D.installments[i-2].page,stage:i-1,rule:'ต้องอนุมัติก่อนเบิกงวด '+(i-1),status:'ยังไม่ได้ส่ง',number:'',sent:'',fileName:''});
