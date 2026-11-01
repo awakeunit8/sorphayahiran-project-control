@@ -51,7 +51,8 @@
         <div class="weekly-toolbar">
           <button type="button" id="weeklyExpand">เปิดทุกหมวด</button>
           <button type="button" id="weeklyCollapse">ย่อทุกหมวด</button>
-          <button type="button" id="weeklyPrint" class="weekly-primary">⎙ พิมพ์ / บันทึก PDF</button>
+          <button type="button" id="weeklyPublish" class="weekly-primary">🔗 เชื่อมแผนย่อยเข้าแผนใหญ่</button>
+          <button type="button" id="weeklyPrint">⎙ พิมพ์ / บันทึก PDF</button>
         </div>
       </div>
       <div class="weekly-legend">
@@ -59,6 +60,10 @@
         <span><i class="weekly-legend-actual"></i> ผลงานจริงสะสมตาม %</span>
         <span><i class="weekly-legend-today"></i> สัปดาห์ปัจจุบัน</span>
         <span><i class="weekly-legend-unscheduled"></i> ยังไม่ได้กำหนดวันเริ่ม</span>
+      </div>
+      <div id="weeklyLinkSummary" class="weekly-link-summary" aria-live="polite">
+        <div><strong id="weeklyLinkHeadline">แผนย่อยยังไม่เชื่อมกับแผนใหญ่</strong><span id="weeklyLinkDetail">กำหนดวันเริ่ม–สิ้นสุดให้ครบก่อนกดเชื่อมแผน</span></div>
+        <a id="weeklyGoMaster" href="./scurve.html">เปิด S-Curve แผนใหญ่ ↗</a>
       </div>
       <div class="weekly-notice" id="weeklyNotice">
         วันเริ่ม–สิ้นสุดของงานย่อยต้องกำหนดจากแผนจริง ระบบจะไม่สมมุติระยะเวลาปฏิบัติงานของแต่ละงานให้เอง
@@ -115,6 +120,7 @@
   </div>
 </div>
 <script src="site-contract-data.js"></script>
+<script src="spy-stage-link.js"></script>
 <script src="weekly-plan.js"></script>
 </body>
 </html>
