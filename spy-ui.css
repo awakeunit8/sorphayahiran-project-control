@@ -117,3 +117,30 @@ body>main .spy-task-open:hover{text-decoration:underline}
 body>main .spy-task-dates{display:block;font-size:11px;line-height:1.6;color:#748aa0;margin-top:3px}
 .spy-work-steps{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0 17px}
 .spy-work-steps span{background:#e9f4fd;border:1px solid #d2e7f8;color:#376e97;font-size:11px;padding:7px 10px;border-radius:20px}
+
+/* Company emblem + icon system inspired by the supplied letterhead */
+.spy-company-logo{width:56px;height:56px;object-fit:contain;flex:none;display:block;background:#fff;border:1px solid #dce9f5;border-radius:14px;padding:5px}
+body>nav .spy-company-logo{width:52px;height:52px;padding:4px;border-color:#ffffff24;box-shadow:0 5px 16px #00142b26}
+.spy-login-company .spy-company-logo{width:78px;height:78px;border-radius:18px;padding:7px;box-shadow:0 10px 24px #194e8213}
+.spy-login-card-company{display:flex;gap:12px;align-items:center;margin-bottom:27px;padding-bottom:19px;border-bottom:1px solid #e5eef8;color:#194267;font-size:13px;font-weight:800;line-height:1.6}
+.spy-login-card-company img{width:46px;height:46px;object-fit:contain;border:1px solid #e0eaf5;padding:3px;border-radius:11px;flex:none}
+.spy-login-card-company small{font-size:10px;letter-spacing:1.1px;color:#8196a9;font-weight:600}
+.spy-icon{height:19px;width:19px;display:inline-block;flex:none;vertical-align:middle}
+body>nav button .spy-icon{height:19px;width:19px;color:currentColor;opacity:.95}
+body>nav button[data-spy-iconified] {display:flex;align-items:center;gap:12px;line-height:1.5}
+body>nav button[data-spy-iconified] span{min-width:0}
+body>nav button.active .spy-icon{stroke-width:2.1}
+body>nav button:hover .spy-icon{transform:translateY(-1px)}
+.spy-icon-button{display:inline-flex!important;align-items:center;justify-content:center;gap:8px;min-height:42px}
+.spy-icon-button .spy-icon{width:18px;height:18px}
+.spy-role-choices .spy-choice .icon{display:flex;align-items:center;justify-content:center;color:#407da8;height:33px}
+.spy-role-choices input:checked+.spy-choice .icon{color:#1c75b7}
+.spy-role-choices .spy-choice .icon .spy-icon{width:31px;height:31px;stroke-width:1.8}
+.spy-login-card #spyLoginSubmit.spy-icon-button{font-size:14px;display:flex!important}
+body>main #taskDocuments .spy-icon-button{justify-content:flex-start}
+body>main #taskDocuments .spy-icon-button .spy-icon{color:#2877a7}
+@media(max-width:760px){
+ body>nav .spy-company-logo{width:43px;height:43px}
+ .spy-login-company .spy-company-logo{width:58px;height:58px}
+ .spy-login-card-company{margin-bottom:21px}
+}
