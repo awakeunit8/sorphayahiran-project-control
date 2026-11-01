@@ -64,6 +64,12 @@
 <div id="spyFinanceOverview" class="cards"></div>
 <h3>งวดรับเงิน 1–13 ตามสัญญา</h3><p class="muted">ยอดตามแผนคำนวณจากร้อยละงวดในเอกสารประกวดราคา ใส่วันที่และยอดรับจริงเพื่อเทียบเงินเข้าตามแผน</p><div class="spy-table-wrap"><table><thead><tr><th>งวด</th><th>กำหนด (นับถัดจากทำสัญญา)</th><th>% สัญญา</th><th>เงินงวดตามแผน</th><th>รับเงินจริง</th><th>วันที่รับ</th><th>ส่วนต่าง</th><th>บันทึก</th></tr></thead><tbody id="spyCashflowRows"></tbody></table></div>
 <h3>งบรายหมวด BOQ และค่าใช้จ่ายจริง</h3><p class="muted">แยกเฉพาะ Owner — หมวดตั้งต้นเพื่อการจัดสรรต้นทุน ไม่ใช่การคัดลอกราคากลางจาก BOQ; เพิ่ม/แก้ไขรายการจริงได้</p><div class="actions"><button onclick="spyAddCostCategory()">+ เพิ่มรายการต้นทุน</button></div><div class="spy-table-wrap"><table><thead><tr><th>หมวด / รายการ</th><th>งบจัดสรร (บาท)</th><th>จ่ายจริงสะสม (บาท)</th><th>เงินคงเหลือ</th><th>บันทึก</th></tr></thead><tbody id="spyCostRows"></tbody></table></div>
+<h3>นำเข้า BOQ ต้นฉบับ (Owner เท่านั้น)</h3>
+<p class="muted">ใช้ไฟล์ Attach_BOQ_1.xlsx ที่ส่งมาได้เลย: อ่านไฟล์ในเครื่อง ไม่อัปโหลดไปเซิร์ฟเวอร์ แสดงรายการพร้อมตัวเลขเฉพาะหน้า Owner โหมดทดลอง และยังต้องตรวจยอดรวม/สูตรกับ Excel ต้นทางก่อนยืนยัน</p>
+<div class="actions"><input type="file" id="spyBoqImport" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"><button class="primary" onclick="spyImportBoq()">⬆ นำเข้า BOQ Excel</button><button onclick="spyExportImportedBoq()">⬇ ส่งรายการ BOQ ที่นำเข้า</button></div>
+<div id="spyBoqImportSummary" class="spy-note">ยังไม่ได้นำเข้า BOQ Excel ในเบราว์เซอร์นี้</div>
+<div class="row"><div class="field"><label>ค้นหารายการ BOQ</label><input id="spyBoqSearch" placeholder="เช่น ไฟฟ้า / เหล็ก / ท่อ / บาท"></div><div class="field"><label>แสดงหมวดงาน</label><select id="spyBoqCategoryFilter"><option value="">ทุกหมวดงาน</option></select></div></div>
+<div class="spy-table-wrap"><table><thead><tr><th>Sheet / แถว</th><th>หมวดงานที่จัดกลุ่ม</th><th>คำอธิบายรายการจาก Excel</th><th>ตัวเลขที่อ่านได้จากแถว</th><th>การดำเนินการ</th></tr></thead><tbody id="spyImportedBoqRows"></tbody></table></div>
 </div></section></main><footer>ต้นแบบการใช้งาน · บริษัท ศรพญาหิรัญ จำกัด · ข้อมูลบันทึกเฉพาะเครื่อง</footer>
 <script src="site-contract-data.js"></script><script>
 const project='อาคารเรียนและปฏิบัติการเอนกประสงค์ มทร.ล้านนา ดอยสะเก็ด';
@@ -161,4 +167,4 @@ let idsUpdated=false;
 for(const stage of milestones){for(const group of stage.groups||[]){for(const task of group.tasks||[]){if(!task.id){task.id=newTaskId();idsUpdated=true}}}}
 if(idsUpdated)oldWriteWbs('milestones',milestones);
 wbs=milestones[selectedMilestone].groups;drawWbs();renderMilestones();
-</script><script src="document-workflow.js"></script><script src="spy-login.js"></script><script src="spy-icons.js"></script><script src="site-project.js"></script><script src="site-finance.js"></script></body></html>
+</script><script src="document-workflow.js"></script><script src="spy-login.js"></script><script src="spy-icons.js"></script><script src="site-project.js"></script><script src="site-finance.js"></script><script src="site-boq-import.js"></script></body></html>
