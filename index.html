@@ -72,7 +72,7 @@
 <div class="row"><div class="field"><label>ค้นหารายการ BOQ</label><input id="spyBoqSearch" placeholder="เช่น ไฟฟ้า / เหล็ก / ท่อ / บาท"></div><div class="field"><label>แสดงหมวดงาน</label><select id="spyBoqCategoryFilter"><option value="">ทุกหมวดงาน</option></select></div></div>
 <div class="spy-table-wrap"><table><thead><tr><th>Sheet / แถว</th><th>หมวดงานที่จัดกลุ่ม</th><th>คำอธิบายรายการจาก Excel</th><th>ตัวเลขที่อ่านได้จากแถว</th><th>การดำเนินการ</th></tr></thead><tbody id="spyImportedBoqRows"></tbody></table></div>
 </div></section></main><footer>ต้นแบบการใช้งาน · บริษัท ศรพญาหิรัญ จำกัด · ข้อมูลบันทึกเฉพาะเครื่อง</footer>
-<script src="site-contract-data.js"></script><script>
+<script src="site-contract-data.js"></script><script src="spy-stage-link.js"></script><script>
 const project='อาคารเรียนและปฏิบัติการเอนกประสงค์ มทร.ล้านนา ดอยสะเก็ด';
 const seed=[['ขอเข้าพื้นที่ก่อสร้าง','เริ่มงาน','ก่อนเริ่มงาน','รอตรวจสอบ'],['ขออนุมัติผังอาคารและผังบริเวณ','เริ่มงาน','ตามผู้ควบคุมงาน','รอตรวจสอบ'],['ขอส่งทะเบียนต้นไม้','เริ่มงาน','รอยืนยัน','รอตรวจสอบ'],['ขอใช้สำนักงานชั่วคราว','เริ่มงาน','รอยืนยัน','มีหนังสือแล้ว'],['ขออนุมัติการทดสอบดิน','เริ่มงาน','รอยืนยัน','มีหนังสือแล้ว'],['ขอส่งเรื่องป้ายโครงการ','เริ่มงาน','รอยืนยัน','รอตรวจสอบ'],['แผนงานก่อสร้าง','1','ภายใน 15 วัน (รอยืนยัน TOR)','รอตรวจสอบ'],['แผนวัสดุภายในประเทศ ≥60%','1','ภายใน 30 วัน (รอยืนยัน TOR)','รอตรวจสอบ'],['แผนเหล็กภายในประเทศ ≥90%','1','ภายใน 30 วัน (รอยืนยัน TOR)','รอตรวจสอบ'],['Shop Drawing งวด 1–2','1–2','ก่อนเริ่มงานที่เกี่ยวข้อง','รอตรวจสอบ'],['ขออนุมัติวัสดุ งวด 1–2','1–2','ก่อนนำวัสดุใช้งาน','รอตรวจสอบ']];
 const read=(key,def)=>{try{return JSON.parse(localStorage.getItem('spy_'+key))??def}catch{return def}},write=(key,val)=>localStorage.setItem('spy_'+key,JSON.stringify(val));
@@ -120,6 +120,7 @@ function renderMilestones(){
  milestoneList.innerHTML=milestones.map((m,i)=>{
   const taskCount=(m.groups||[]).reduce((sum,g)=>sum+(g.tasks||[]).length,0);
   const progress=stageProgress(m);
+  const linked=window.SPY_STAGE_LINK?.status(i,m);
   const late=!!m.due&&m.due<new Date().toLocaleDateString('en-CA')&&progress<100;
   return '<div class="spy-stage-unit"><button type="button" class="spy-stage-card'+(selectedMilestone===i?' selected':'')+'" aria-pressed="'+(selectedMilestone===i)+'" onclick="chooseMilestone('+i+')">'+
     '<span class="spy-stage-index">งวดที่ '+(i+1)+'</span>'+
@@ -127,7 +128,10 @@ function renderMilestones(){
     '<span class="spy-stage-track"><i style="width:'+progress+'%"></i></span>'+
     '<span class="spy-stage-due">'+safe(thaiDate(m.due))+'</span>'+
     '<span class="spy-stage-footer">'+taskCount+' งานย่อย '+(late?'· <b class="spy-late">เลยวันกำหนด</b>':'')+'</span></button>'+
-    '<a class="spy-stage-open" href="./weekly-plan.html?stage='+(i+1)+'" aria-label="เปิดแผนรายสัปดาห์ของงวดที่ '+(i+1)+'">📅 แผนย่อยรายสัปดาห์ →</a></div>';
+    '<a class="spy-stage-open" href="./weekly-plan.html?stage='+(i+1)+'" aria-label="เปิดแผนรายสัปดาห์ของงวดที่ '+(i+1)+'">📅 แผนย่อยรายสัปดาห์ →</a>'+
+    '<span class="spy-stage-link-pill '+(linked?.linked?'linked':linked?.outdated?'outdated':linked?.ready?'ready':'pending')+'">'+
+    (linked?.linked?'🔗 เชื่อมกับแผนใหญ่แล้ว':linked?.outdated?'⚠ ปรับแผนแล้ว รอเชื่อมใหม่':linked?.ready?'✓ พร้อมเชื่อมแผนใหญ่':'กำหนดวัน '+(linked?.scheduled||0)+'/'+(linked?.total||0)+' งาน')+
+    '</span></div>';
  }).join('');
  const m=milestones[selectedMilestone];
  currentMilestoneNumber.textContent=selectedMilestone+1;
