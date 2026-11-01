@@ -142,7 +142,7 @@ function boot(){
  let role=null;try{role=sessionStorage.getItem('spy_demo_role')}catch{}
  if(role!=='owner'&&role!=='admin')return;
  document.body.classList.add('spy-scurve-auth');
- if(role==='admin'){document.body.classList.add('spy-scurve-admin');if(actualMode==='money'){actualMode='percent';actual={};}}
+ if(role==='admin'){document.body.classList.add('spy-scurve-admin');if(actualMode==='money'){actualMode='percent';actual={};}makeEditor();const moneyOption=$('actualMode')?.querySelector('option[value="money"]');if(moneyOption)moneyOption.disabled=true;}
  render();
  window.addEventListener('storage',e=>{if(e.key==='spy_milestones'){const fresh=get('spy_milestones',null);if(Array.isArray(fresh)&&fresh.length===13){stages=fresh;render();drawTask()}}});
 }
