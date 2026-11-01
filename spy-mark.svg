@@ -1,15 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
-<title id="title">สัญลักษณ์บริษัท ศรพญาหิรัญ</title>
-<desc id="desc">สัญลักษณ์รูปทรงเรขาคณิตสีน้ำเงินและฟ้าอ้างอิงภาพตราบริษัท</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="title desc">
+<title id="title">ตราบริษัท ศรพญาหิรัญ จำกัด</title>
+<desc id="desc">ตราสัญลักษณ์รูปทรงเรขาคณิตต่อเนื่องแบบลูกศร พร้อมแถบด้านล่าง สีฟ้าเทอร์ควอยซ์ด้านซ้ายและสีน้ำเงินเข้มด้านขวา วาดตามภาพตัวอย่างที่บริษัทส่งมา</desc>
 <defs>
-  <linearGradient id="blue" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1ccadd"/><stop offset=".48" stop-color="#078fd9"/><stop offset="1" stop-color="#2011b8"/></linearGradient>
-  <linearGradient id="dark" x1=".1" y1="0" x2=".9" y2=".9"><stop stop-color="#0b89db"/><stop offset="1" stop-color="#2214bb"/></linearGradient>
+  <linearGradient id="twoTone" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#25c6dc"/>
+    <stop offset="40%" stop-color="#02b4d8"/>
+    <stop offset="50.2%" stop-color="#02a7dd"/>
+    <stop offset="50.4%" stop-color="#0872e5"/>
+    <stop offset="71%" stop-color="#1741dc"/>
+    <stop offset="100%" stop-color="#2810b8"/>
+  </linearGradient>
+  <linearGradient id="upper" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0" stop-color="#02b9da"/>
+    <stop offset=".55" stop-color="#078bdb"/>
+    <stop offset=".56" stop-color="#154ce0"/>
+    <stop offset="1" stop-color="#2914bf"/>
+  </linearGradient>
 </defs>
-<!-- These vector paths are a close visual redraw of the supplied company mark. -->
-<path fill="url(#blue)" d="M14 86 83 16 97 32 46 83h65l19 16H23L14 94Z"/>
-<path fill="url(#dark)" d="m88 16 27 32H79l10-17h6L83 18Z"/>
-<path fill="url(#blue)" d="M63 60h59l31 34-22 15H22L8 96l14-9h108l-18-13H51Z"/>
-<path fill="url(#blue)" d="M43 115h85v6H43z"/>
-<path fill="url(#blue)" d="M49 126h80v6H49z"/>
-<path fill="url(#blue)" d="m55 136 74 0-10 8H67Z"/>
+<!-- Diagonal rising wing and pointed upper emblem -->
+<path d="M82 201 206 20 Q209 16 213 22 L213 76 113 201Z" fill="url(#twoTone)"/>
+<path d="M208 19 273 101 H186 L209 73 220 73 229 82 211 56Z" fill="url(#upper)"/>
+<!-- Folded center ribbon, open white channel, and long horizontal lower arm -->
+<path d="M190 126 H291 L369 238 Q374 244 368 251 L341 269 H63 L46 254 Q43 250 48 244 L61 229 H288 L262 201 H84 L111 161 H313 L292 147 H178Z" fill="url(#twoTone)"/>
+<!-- Fine horizontal band and rounded bottom cap -->
+<path d="M122 286 H290 Q299 286 299 295 Q299 303 290 303 H121 Q113 303 112 295 Q113 287 122 286Z" fill="url(#twoTone)"/>
+<path d="M120 320 H292 V344 Q286 352 264 359 Q207 371 150 359 Q128 354 120 345Z" fill="url(#twoTone)"/>
 </svg>
