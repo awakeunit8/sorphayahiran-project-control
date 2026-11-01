@@ -35,3 +35,17 @@ body.spy-scurve-admin .spy-sensitive,body.spy-scurve-admin .spy-price,body.spy-s
  .schedule .spy-subtask-row .desc button{font-size:7px}.schedule .spy-subtask-row td.task-time.active{background:#b3dbf5!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
  header{display:none!important}.card{page-break-inside:avoid}
 }
+
+/* Weekly plans stay outside the monthly S-Curve's 13-row summary table. */
+.spy-master-link-overview{padding:9px 12px;background:#f0f9ff;border:1px solid #d3e8fa;border-radius:8px;margin:10px 0;color:#386d90;font-size:11px;line-height:1.6}
+.schedule .spy-master-stage-link{display:flex;align-items:center;gap:3px;flex-wrap:wrap;margin-top:4px;line-height:1.25}
+.schedule .spy-master-stage-open{font-size:9px;font-weight:800;color:#166baa;border-radius:5px;padding:2px 4px;background:#e7f4ff;border:1px solid #cbe6f9;text-decoration:none}
+.schedule .spy-master-stage-open:hover{color:#fff;background:#146aa3}
+.schedule .spy-master-stage-status{font-size:8px;font-weight:700;color:#718ca2;white-space:normal}
+.schedule .spy-master-stage-status.linked{color:#098068}
+.schedule .spy-master-stage-status.ready{color:#22659d}
+.schedule .spy-master-stage-status.outdated{color:#b07320}
+@media print{
+ .schedule .spy-master-stage-link{display:none!important}
+ .spy-master-link-overview{display:none!important}
+}
