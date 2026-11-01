@@ -128,6 +128,33 @@ window.spyDownloadRequirement=async id=>{
  try{const file=await getFile(id);if(!file)throw Error('ไม่พบไฟล์บนเครื่องนี้');download(file,d.fileName)}
  catch(e){alert(String(e))}
 };
+let activeRequirementLetter=null;
+window.spyCreateRequirementLetter=function(id){
+ const d=requirements.find(x=>x.id===id);if(!d)return;
+ if(typeof window.createTaskDocument!=='function')return alert('ฟอร์มหนังสือยังไม่พร้อม');
+ activeRequirementLetter=id;
+ window.createTaskDocument();
+ $('docTitle').value=d.name;
+ $('docBody').value='บริษัทฯ ขอนำส่ง '+d.name+' เพื่อโปรดพิจารณา ตามเอกสารแนบ';
+ const type=/Shop Drawing/.test(d.name)?'Shop Drawing':/อนุมัติวัสดุ|พัสดุ/.test(d.name)?'ขออนุมัติวัสดุ':/เหล็ก/.test(d.name)?'ผลทดสอบเหล็กเส้น':/ลูกปูน/.test(d.name)?'ผลทดสอบลูกปูน':'หนังสือทั่วไป';
+ $('docType').value=type;
+ if(due(d))$('docDue').value=due(d);
+ $('docSaveMessage').textContent='กำลังสร้างหนังสือสำหรับรายการ: '+d.name+' · บันทึกแล้วเลขร่างจะกลับไปแสดงในทะเบียนเอกสารที่ต้องส่ง';
+};
+const originalSaveTaskDocument=window.saveTaskDocument;
+if(typeof originalSaveTaskDocument==='function'){
+ window.saveTaskDocument=async function(){
+  await originalSaveTaskDocument();
+  if(!activeRequirementLetter)return;
+  const number=$('docSerial')?.value||'';
+  if(!number)return;
+  const d=requirements.find(x=>x.id===activeRequirementLetter);if(!d)return;
+  d.number=number;
+  if(d.status==='ยังไม่ได้ส่ง')d.status='กำลังจัดทำ';
+  put('spy_required_doc_v2',requirements);
+  activeRequirementLetter=null;renderSummary();
+ };
+}
 window.spyAddRequirement=()=>{
  const name=prompt('ชื่อหัวข้อเอกสารที่ต้องส่ง');if(!name?.trim())return;
  const date=prompt('วันที่ต้องส่ง (YYYY-MM-DD) ไม่ทราบเว้นว่าง','');
@@ -156,7 +183,7 @@ function renderDocs(){
     '<td><input type="date" aria-label="วันที่ส่ง" value="'+esc(d.sent)+'" onchange="spySaveRequirement(\''+d.id+'\',\'sent\',this.value)"></td>'+
     '<td><div class="spy-upload-stack">'+(d.fileName?'<button onclick="spyDownloadRequirement(\''+d.id+'\')">⬇ '+esc(d.fileName)+'</button>':'<span>ยังไม่มีไฟล์</span>')+
     '<input type="file" accept="application/pdf,image/*" aria-label="แนบเอกสาร" onchange="spyAttachRequirement(\''+d.id+'\',this)"></div></td>'+
-    '<td><button onclick="alert(\'บันทึกทุกครั้งที่แก้ช่องข้อมูลแล้ว\')">✓</button></td></tr>';
+    '<td><button onclick="spyCreateRequirementLetter(\''+d.id+'\')">✎ สร้างหนังสือ</button></td></tr>';
  }).join('')||'<tr><td colspan="7">ไม่พบรายการ</td></tr>';
  renderSummary();
 }
