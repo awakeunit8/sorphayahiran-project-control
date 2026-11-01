@@ -20,7 +20,7 @@
     login.setAttribute('aria-hidden','true');
     document.getElementById('spyPin').value='';
     error.textContent='';
-    if(typeof showTab==='function')showTab('home');
+    if(typeof showTab==='function'){const initialTab=new URLSearchParams(location.search).get('tab');showTab(initialTab==='plan'?'plan':'home')}
     remember(role);
   }
   form.addEventListener('submit',function(event){
