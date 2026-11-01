@@ -107,3 +107,19 @@ button.weekly-primary{background:#176fae;border-color:#176fae;color:white}
  .weekly-placeholder{print-color-adjust:exact;-webkit-print-color-adjust:exact}
  .weekly-table tbody tr{break-inside:avoid}.weekly-source{font-size:8px}
 }
+
+/* Publish complete weekly work packages into the 13-row master S-Curve. */
+.weekly-link-summary{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;background:#f1f7fe;border:1px solid #d3e7f7;border-radius:11px;padding:14px 16px;margin:13px 0}
+.weekly-link-summary>div{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+.weekly-link-summary strong{font-size:13px;color:#275f89}
+.weekly-link-summary span{font-size:11px;color:#7090ab;line-height:1.7}
+.weekly-link-summary a{display:inline-flex;border:1px solid #c8e4f8;background:#fff;color:#18699e;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:800;white-space:nowrap}
+.weekly-link-summary[data-state=linked]{background:#edf9f2;border-color:#bde8cc}
+.weekly-link-summary[data-state=linked] strong{color:#16754c}
+.weekly-link-summary[data-state=outdated]{background:#fff8e9;border-color:#f1d9a9}
+.weekly-link-summary[data-state=outdated] strong{color:#95601b}
+.weekly-link-summary[data-state=ready]{background:#ecf7ff;border-color:#bdddf3}
+.weekly-link-summary[data-state=ready] strong{color:#185d90}
+.weekly-toolbar #weeklyPublish:disabled{background:#eaf1f7;color:#7390a4;border:1px solid #d9e6f1;opacity:1}
+@media(max-width:760px){.weekly-link-summary{padding:12px}.weekly-link-summary a{font-size:11px}}
+@media print{.weekly-link-summary a{display:none!important}.weekly-link-summary{border:1px solid #dce7ef;margin:4px 0;padding:5px 8px}.weekly-link-summary strong{font-size:10px}.weekly-link-summary span{font-size:8px}}
