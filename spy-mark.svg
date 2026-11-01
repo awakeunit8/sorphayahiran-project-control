@@ -1,28 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="title desc">
-<title id="title">ตราบริษัท ศรพญาหิรัญ จำกัด</title>
-<desc id="desc">ตราสัญลักษณ์รูปทรงเรขาคณิตต่อเนื่องแบบลูกศร พร้อมแถบด้านล่าง สีฟ้าเทอร์ควอยซ์ด้านซ้ายและสีน้ำเงินเข้มด้านขวา วาดตามภาพตัวอย่างที่บริษัทส่งมา</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 643 595" role="img" aria-labelledby="title desc">
+<title id="title">ตราสัญลักษณ์บริษัท ศรพญาหิรัญ จำกัด</title>
+<desc id="desc">รูปทรงเรขาคณิตสีฟ้าทางซ้ายและน้ำเงินทางขวา อ้างอิงจากภาพโลโก้ความคมชัดสูงที่บริษัทส่งมา</desc>
 <defs>
-  <linearGradient id="twoTone" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#25c6dc"/>
-    <stop offset="40%" stop-color="#02b4d8"/>
-    <stop offset="50.2%" stop-color="#02a7dd"/>
-    <stop offset="50.4%" stop-color="#0872e5"/>
-    <stop offset="71%" stop-color="#1741dc"/>
-    <stop offset="100%" stop-color="#2810b8"/>
+  <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#11bbdf"/>
+    <stop offset="1" stop-color="#00b5e3"/>
   </linearGradient>
-  <linearGradient id="upper" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0" stop-color="#02b9da"/>
-    <stop offset=".55" stop-color="#078bdb"/>
-    <stop offset=".56" stop-color="#154ce0"/>
-    <stop offset="1" stop-color="#2914bf"/>
+  <linearGradient id="blue" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#1135dd"/>
+    <stop offset="1" stop-color="#1611bf"/>
   </linearGradient>
+  <clipPath id="left"><path d="M0 0H330V595H0Z"/></clipPath>
+  <clipPath id="right"><path d="M330 0H643V595H330Z"/></clipPath>
 </defs>
-<!-- Diagonal rising wing and pointed upper emblem -->
-<path d="M82 201 206 20 Q209 16 213 22 L213 76 113 201Z" fill="url(#twoTone)"/>
-<path d="M208 19 273 101 H186 L209 73 220 73 229 82 211 56Z" fill="url(#upper)"/>
-<!-- Folded center ribbon, open white channel, and long horizontal lower arm -->
-<path d="M190 126 H291 L369 238 Q374 244 368 251 L341 269 H63 L46 254 Q43 250 48 244 L61 229 H288 L262 201 H84 L111 161 H313 L292 147 H178Z" fill="url(#twoTone)"/>
-<!-- Fine horizontal band and rounded bottom cap -->
-<path d="M122 286 H290 Q299 286 299 295 Q299 303 290 303 H121 Q113 303 112 295 Q113 287 122 286Z" fill="url(#twoTone)"/>
-<path d="M120 320 H292 V344 Q286 352 264 359 Q207 371 150 359 Q128 354 120 345Z" fill="url(#twoTone)"/>
+<!-- Roof apex and upper folded segment -->
+<path d="M135 290 330 35 330 136 291 220 330 220 330 290Z" fill="url(#cyan)"/>
+<path d="M330 35 433 168H330Z" fill="url(#blue)"/>
+<!-- S-shaped folded wing, with the horizontal white void left open -->
+<path d="M330 220H471L583 366 529 411H330V341H462L423 290H330Z" fill="url(#blue)"/>
+<!-- Lower horizontal ribbon and pointed left tip -->
+<path d="M97 341H330V411H133L76 367Z" fill="url(#cyan)"/>
+<!-- Narrow bevel-edged stripe -->
+<g clip-path="url(#left)" fill="url(#cyan)">
+  <path d="M194 445H466L478 461 465 476H194L183 461Z"/>
+  <path d="M193 506H466V551Q329 620 193 551Z"/>
+</g>
+<g clip-path="url(#right)" fill="url(#blue)">
+  <path d="M194 445H466L478 461 465 476H194L183 461Z"/>
+  <path d="M193 506H466V551Q329 620 193 551Z"/>
+</g>
 </svg>
