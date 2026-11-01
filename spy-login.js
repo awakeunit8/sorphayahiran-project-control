@@ -20,8 +20,17 @@
     login.setAttribute('aria-hidden','true');
     document.getElementById('spyPin').value='';
     error.textContent='';
-    if(typeof showTab==='function'){const initialTab=new URLSearchParams(location.search).get('tab');showTab(initialTab==='plan'?'plan':'home')}
     remember(role);
+    // A direct S-Curve link must return to its 13-installment view after login.
+    const query=new URLSearchParams(location.search);
+    if(query.get('return')==='scurve'){
+      location.replace('./scurve.html');
+      return;
+    }
+    if(typeof showTab==='function'){
+      const initialTab=query.get('tab');
+      showTab(initialTab==='plan'?'plan':'home');
+    }
   }
   form.addEventListener('submit',function(event){
     event.preventDefault();
