@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#143657">
+<title>แผนงานย่อยรายสัปดาห์ · ศรพญาหิรัญ</title>
+<link rel="icon" type="image/svg+xml" href="spy-mark.svg">
+<link rel="stylesheet" href="weekly-plan.css">
+</head>
+<body>
+<div id="weeklyAuth" hidden role="alert" class="weekly-auth">
+  <div class="weekly-auth-card">
+    <img src="logo.png" alt="ตราบริษัทศรพญาหิรัญ" onerror="this.onerror=null;this.src='spy-mark.svg'">
+    <h2>แผนงานย่อยรายสัปดาห์</h2>
+    <p>กรุณาเข้าสู่ระบบศรพญาหิรัญก่อนเปิดแผนงาน</p>
+    <a id="weeklyLoginLink" href="./index.html">เข้าสู่ระบบ →</a>
+  </div>
+</div>
+<div id="weeklyApp" hidden>
+  <header class="weekly-header">
+    <div class="weekly-brand">
+      <img src="logo.png" alt="ตราบริษัทศรพญาหิรัญ" onerror="this.onerror=null;this.src='spy-mark.svg'">
+      <div><strong>บริษัท ศรพญาหิรัญ จำกัด</strong><span>SORPHAYAHIRAN · PROJECT CONTROL</span></div>
+    </div>
+    <div class="weekly-header-links">
+      <a id="weeklyBack" href="./index.html?tab=plan">← งวดงาน 1–13</a>
+      <a href="./scurve.html">↗ S-Curve แผนหลัก</a>
+    </div>
+  </header>
+  <main class="weekly-main">
+    <div class="weekly-intro">
+      <div>
+        <span class="weekly-eyebrow">แผนย่อยภายในงวด · WEEKLY WORK PLAN</span>
+        <h1>งวดที่ <span id="weeklyStageTitle">1</span> <span class="weekly-h1-suffix">/ แผนงานรายสัปดาห์</span></h1>
+        <p>โครงการอาคารเรียนและปฏิบัติการเอนกประสงค์ · มทร.ล้านนา ดอยสะเก็ด</p>
+      </div>
+      <div class="weekly-pager" aria-label="เปลี่ยนงวดงาน">
+        <button type="button" id="weeklyPrev">‹ ก่อนหน้า</button>
+        <label for="weeklyStageSelect">งวดงาน <select id="weeklyStageSelect" aria-label="เลือกงวดงาน"></select></label>
+        <button type="button" id="weeklyNext">ถัดไป ›</button>
+      </div>
+    </div>
+    <div class="weekly-stats" id="weeklyStats"></div>
+    <section class="weekly-panel">
+      <div class="weekly-panel-header">
+        <div>
+          <h2>แผนงานย่อย · แสดงเป็นรายสัปดาห์</h2>
+          <p id="weeklyRangeText">ช่วงวันที่ของงวดงาน</p>
+        </div>
+        <div class="weekly-toolbar">
+          <button type="button" id="weeklyExpand">เปิดทุกหมวด</button>
+          <button type="button" id="weeklyCollapse">ย่อทุกหมวด</button>
+          <button type="button" id="weeklyPrint" class="weekly-primary">⎙ พิมพ์ / บันทึก PDF</button>
+        </div>
+      </div>
+      <div class="weekly-legend">
+        <span><i class="weekly-legend-plan"></i> ช่วงงานที่กำหนดวันที่แล้ว</span>
+        <span><i class="weekly-legend-actual"></i> ผลงานจริงสะสมตาม %</span>
+        <span><i class="weekly-legend-today"></i> สัปดาห์ปัจจุบัน</span>
+        <span><i class="weekly-legend-unscheduled"></i> ยังไม่ได้กำหนดวันเริ่ม</span>
+      </div>
+      <div class="weekly-notice" id="weeklyNotice">
+        วันเริ่ม–สิ้นสุดของงานย่อยต้องกำหนดจากแผนจริง ระบบจะไม่สมมุติระยะเวลาปฏิบัติงานของแต่ละงานให้เอง
+      </div>
+      <div class="weekly-table-scroll" id="weeklyScroll">
+        <table class="weekly-table" id="weeklyTable" aria-label="แผนงานย่อยรายสัปดาห์">
+          <thead id="weeklyTableHead"></thead>
+          <tbody id="weeklyTableBody"></tbody>
+        </table>
+      </div>
+      <p class="weekly-source" id="weeklySource">อ้างอิงเอกสารแบ่งงวดงาน 13 งวด · รายการงานย่อยสามารถแก้ไขได้</p>
+      <div class="weekly-bottom">
+        <button type="button" id="weeklyAddGroup">＋ เพิ่มหมวดงาน</button>
+        <a id="weeklyBackBottom" href="./index.html?tab=plan">← กลับไปภาพรวมงวดงาน</a>
+      </div>
+    </section>
+  </main>
+  <div class="weekly-dialog-backdrop" id="weeklyBackdrop" hidden>
+    <section class="weekly-editor" role="dialog" aria-modal="true" aria-labelledby="weeklyEditorTitle">
+      <div class="weekly-editor-top">
+        <div><span class="weekly-eyebrow" id="weeklyEditorPath"></span><h2 id="weeklyEditorTitle">ปรับแผนงานย่อย</h2></div>
+        <button type="button" id="weeklyCloseEditor" class="weekly-close" aria-label="ปิด">×</button>
+      </div>
+      <form id="weeklyEditForm" novalidate>
+        <label>ชื่องานย่อย<input id="weeklyTaskName" required></label>
+        <div class="weekly-form-grid">
+          <label>วันเริ่มต้น<input id="weeklyTaskStart" type="date"></label>
+          <label>กำหนดแล้วเสร็จ<input id="weeklyTaskEnd" type="date"></label>
+          <label>ผู้รับผิดชอบ<input id="weeklyTaskOwner" placeholder="ชื่อผู้รับผิดชอบ"></label>
+          <label>สถานะ
+            <select id="weeklyTaskStatus">
+              <option>ยังไม่เริ่ม</option>
+              <option>กำลังดำเนินการ</option>
+              <option>ติดปัญหา</option>
+              <option>รอตรวจงาน</option>
+              <option>เสร็จสิ้น</option>
+            </select>
+          </label>
+          <label>แผนสะสม (%)<input id="weeklyTaskPlanned" type="number" min="0" max="100" step=".1"></label>
+          <label>ผลงานจริง (%)<input id="weeklyTaskActual" type="number" min="0" max="100" step=".1"></label>
+          <label>น้ำหนักภายในหมวด<input id="weeklyTaskWeight" type="number" min="0" step=".01"></label>
+          <label class="weekly-form-hint">ข้อมูลระยะเวลา
+            <span id="weeklyDateHint">ระบุวันที่เริ่มและสิ้นสุดเพื่อแสดงแถบบนแผนรายสัปดาห์</span>
+          </label>
+        </div>
+        <label>หมายเหตุ / รายการที่ต้องตรวจสอบ<textarea id="weeklyTaskNotes" rows="3"></textarea></label>
+        <div class="weekly-editor-actions">
+          <button type="submit" class="weekly-primary">💾 บันทึกงานย่อย</button>
+          <button type="button" id="weeklyTaskDocs">📑 เอกสารของงานนี้</button>
+          <button type="button" id="weeklyDeleteTask" class="weekly-danger">ลบงานย่อย</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</div>
+<script src="site-contract-data.js"></script>
+<script src="weekly-plan.js"></script>
+</body>
+</html>
