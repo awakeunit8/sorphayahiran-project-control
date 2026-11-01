@@ -76,6 +76,12 @@ window.spyAddCostCategory=function(){
  const name=prompt('ชื่อรายการต้นทุนเพิ่ม');if(!name?.trim())return;
  read().categories.push({name:name.trim(),budget:'',spent:'',id:'cost'+Date.now()});save();render();
 };
+window.spyAppendFinanceCategory=function(name){
+ if(!isOwner()||!name)return;
+ const d=read();if(d.categories.some(c=>c.name===name)){alert('มีรายการนี้ในงบแล้ว');return}
+ d.categories.push({name,budget:'',spent:'',id:'import'+Date.now()});save();render();
+ alert('เพิ่มรายการลงแผนงบ Owner แล้ว: '+name+'\nกรอกงบที่วางแผนจะจ่ายและจ่ายจริงในตารางด้านบน');
+};
 window.spyExportFinance=function(){
  const d=read();if(!d)return;
  const rows=[['ประเภท','หัวข้อ','เปอร์เซ็นต์','กำหนด','ยอดงบ/ตามแผน','ยอดจริง','วันที่']];
