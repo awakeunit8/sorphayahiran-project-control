@@ -17,10 +17,12 @@
 <section class="card"><div class="print-title"><h2>แผนงานและกราฟความก้าวหน้า (S-CURVE)</h2><div><strong>อาคารเรียนและปฏิบัติการเอนกประสงค์ มทร.ล้านนา</strong></div><div><span class="spy-price">สัญญา 205,555,555 บาท · </span> 13 งวด · 6 ต.ค. 2569 – 4 มี.ค. 2572 · <span id="dateLabel"></span></div></div>
 <div class="stats"><div class="stat">แผนสะสม ณ วันที่รายงาน<b id="planValue">0%</b></div><div class="stat">ผลงานจริงสะสม<b id="actualValue">0%</b></div><div class="stat">ผลต่างจริง − แผน<b id="deltaValue">0%</b></div><div class="stat">สถานะ<b id="statusValue">—</b></div></div>
 <div class="stats time-stats"><div class="stat">ระยะเวลาตามสัญญา<b id="totalDays">—</b></div><div class="stat">ใช้เวลาไปแล้ว<b id="usedDays">—</b></div><div class="stat">เหลือเวลาอีก<b id="remainingDays">—</b></div><div class="stat spy-sensitive">มูลค่างานตามแผน ณ วันที่รายงาน<b id="earnedValue">—</b><small class="note">คำนวณจากแผนสะสม × มูลค่าสัญญา</small></div></div><div class="stats time-stats spy-sensitive"><div class="stat">มูลค่าผลงานจริงสะสม ณ วันที่รายงาน<b id="actualMoneyValue">—</b></div><div class="stat">ผลต่างมูลค่างานจริง − แผน<b id="moneyDeltaValue">—</b></div><div class="stat">มูลค่าสัญญารวม<b id="contractMoneyValue">—</b></div><div class="stat">วันที่ใช้คำนวณ<b id="moneyReportDate">—</b></div></div><div class="legend"><span><i class="dot" style="background:#1674d2"></i>แผนงาน</span><span id="actualLegend"><i class="dot" style="background:#119b64"></i>ผลงานจริง</span><span><i class="dot" style="background:#d84b53"></i>ช่วงดำเนินงานตามแผน</span></div>
+<div id="spyMasterLinkOverview" class="spy-master-link-overview noprint" aria-live="polite">ตรวจสอบแผนย่อยที่เชื่อมกับงวดงาน...</div>
 <div class="sheet"><div class="grid-holder" id="gridHolder"><table class="schedule" id="schedule"></table><svg class="curve" id="curve"></svg></div></div>
 <p class="note">เส้น S-Curve คำนวณตามสัดส่วนมูลค่างวดงานที่กระจายตามวันในแต่ละงวด (Financial-weighted progress) ไม่ใช่ปริมาณงานทางกายภาพโดยตรง ข้อมูลจริงต้องบันทึกเอง</p></section>
 <section class="card editor"><div class="panel-heading"><h3>ปรับแผนสะสมรายเดือน</h3><button type="button" class="toggle-panel noprint" onclick="togglePanel('planPanel',this)" aria-expanded="false">▼ แสดงข้อมูล</button></div><div id="planPanel" hidden><p class="note">กรอกเปอร์เซ็นต์แผนสะสมสิ้นเดือนเพื่อปรับมูลค่าตามแผน · ไม่กรอกใช้แผนเดิม</p><div class="sheet"><table class="edit"><thead><tr><th>เดือน</th><th>แผนสะสม (%)</th><th>เดือน</th><th>แผนสะสม (%)</th></tr></thead><tbody id="planEditBody"></tbody></table></div><button onclick="resetPlan()">คืนค่าแผนเดิม</button></div></section><section class="card editor"><div class="panel-heading"><h3>บันทึกผลงานจริงรายเดือน</h3><button type="button" class="toggle-panel noprint" onclick="togglePanel('actualPanel',this)" aria-expanded="false">▼ แสดงข้อมูล</button></div><div id="actualPanel" hidden><p class="note">เลือกวิธีกรอก: เปอร์เซ็นต์สะสม หรือมูลค่างานรายเดือน · กรอกข้อมูลแล้วกราฟและสรุปจะปรับทันที · ระบบเก็บข้อมูลในเบราว์เซอร์เครื่องนี้โดยอัตโนมัติ กรุณาสำรอง JSON เป็นระยะ</p><label>รูปแบบข้อมูลจริง <select id="actualMode" onchange="changeActualMode(this.value)"><option value="percent">เปอร์เซ็นต์งานจริงสะสม (%)</option><option value="money" class="spy-owner-only">มูลค่างานจริงรายเดือน (บาท)</option></select></label><div class="sheet"><table class="edit"><thead><tr><th>เดือน</th><th><span class="actualInputLabel">ผลงานจริงสะสม (%)</span></th><th>เดือน</th><th>มูลค่างานจริงรายเดือน (บาท)</th></tr></thead><tbody id="editBody"></tbody></table></div><button onclick="clearActual()">ล้างผลงานจริงทั้งหมด</button></div></section>
 </main><footer>บริษัท ศรพญาหิรัญ จำกัด · แผนงานราชมงคลล้านนา · ข้อมูลทดลองอยู่ในอุปกรณ์นี้</footer></div>
+<script src="spy-stage-link.js"></script>
 <script>
 const milestones=[
 ['2569-10-06','2570-02-03',14388888,'เตรียมพื้นที่ / เสาเข็ม / ฐานราก / ไฟฟ้าแรงสูง'],
@@ -60,12 +62,20 @@ function render(){const d=new Date(document.getElementById('reportDate').value+'
 let html='<colgroup><col style="width:32px"><col style="width:185px"><col style="width:96px">'+months.map(()=>'<col style="width:auto">').join('')+'</colgroup><thead><tr><th class="no">งวด</th><th class="desc">รายละเอียดงาน</th><th class="amount">'+(window.spyIsOwner()?'จำนวนเงิน (บาท)':'เป้าหมาย')+'</th>'+months.map(m=>'<th class="month">'+label(m)+'</th>').join('')+'</tr></thead><tbody>';
 milestones.forEach((r,i)=>{
  const start=thaiYear(r[0]),end=thaiYear(r[1]);
- html+='<tr><td>'+(i+1)+'</td><td class="desc">'+r[3]+'</td><td>'+(window.spyIsOwner()?fmt(r[2]):'—')+'</td>'+
+ html+='<tr><td>'+(i+1)+'</td><td class="desc">'+r[3]+(window.SPY_STAGE_LINK?window.SPY_STAGE_LINK.masterCell(i):'')+'</td><td>'+(window.spyIsOwner()?fmt(r[2]):'—')+'</td>'+
  months.map(m=>{const monthEnd=new Date(m.getFullYear(),m.getMonth()+1,0);return '<td class="'+(start<=monthEnd&&end>=m?'bar':'muted')+'"></td>'}).join('')+'</tr>';
  if(mode==='compare')html+='<tr class="rowactual"><td></td><td class="desc">ผลงานจริงงวด '+(i+1)+'</td><td></td>'+
  months.map(m=>'<td class="'+(actual[key(m)]!==undefined&&start<=new Date(m.getFullYear(),m.getMonth()+1,0)&&end>=m?'actualbar':'')+'"></td>').join('')+'</tr>';
 });
-html+='</tbody><tfoot><tr class="monthly-days"><th colspan="3">ระยะเวลาดำเนินงานในแต่ละเดือน (วัน)</th>'+months.map(m=>'<th>'+overlapDays(projectStart,projectEnd,new Date(m.getFullYear(),m.getMonth(),1),new Date(m.getFullYear(),m.getMonth()+1,0))+'</th>').join('')+'</tr><tr class="monthly-total"><th colspan="3">มูลค่างานตามแผนรายเดือน (บาท)</th>'+months.map(m=>'<th>'+(window.spyIsOwner()?fmt(Math.round(monthlyMoney(m))):'—')+'</th>').join('')+'</tr><tr><th colspan="3">แผนสะสม (%)</th>'+months.map(m=>'<th>'+planAt(new Date(m.getFullYear(),m.getMonth()+1,0)).toFixed(1)+'</th>').join('')+'</tr>';if(mode==='compare')html+='<tr><th colspan="3">งานจริงสะสม (%)</th>'+months.map(m=>'<th>'+(actualOnRecordedTimeline(m)===null?'—':actualOnRecordedTimeline(m).toFixed(2))+'</th>').join('')+'</tr>';html+='</tfoot>';document.getElementById('schedule').innerHTML=html;requestAnimationFrame(drawCurve)}
+html+='</tbody><tfoot><tr class="monthly-days"><th colspan="3">ระยะเวลาดำเนินงานในแต่ละเดือน (วัน)</th>'+months.map(m=>'<th>'+overlapDays(projectStart,projectEnd,new Date(m.getFullYear(),m.getMonth(),1),new Date(m.getFullYear(),m.getMonth()+1,0))+'</th>').join('')+'</tr><tr class="monthly-total"><th colspan="3">มูลค่างานตามแผนรายเดือน (บาท)</th>'+months.map(m=>'<th>'+(window.spyIsOwner()?fmt(Math.round(monthlyMoney(m))):'—')+'</th>').join('')+'</tr><tr><th colspan="3">แผนสะสม (%)</th>'+months.map(m=>'<th>'+planAt(new Date(m.getFullYear(),m.getMonth()+1,0)).toFixed(1)+'</th>').join('')+'</tr>';if(mode==='compare')html+='<tr><th colspan="3">งานจริงสะสม (%)</th>'+months.map(m=>'<th>'+(actualOnRecordedTimeline(m)===null?'—':actualOnRecordedTimeline(m).toFixed(2))+'</th>').join('')+'</tr>';html+='</tfoot>';document.getElementById('schedule').innerHTML=html;
+const stageLinkInfo=window.SPY_STAGE_LINK?.overall();
+if(stageLinkInfo){
+ const summary=document.getElementById('spyMasterLinkOverview');
+ summary.textContent='🔗 เชื่อมแผนย่อยเข้ากับแผนใหญ่แล้ว '+stageLinkInfo.linked+'/13 งวด'+
+  ' · กำหนดวันงานย่อย '+stageLinkInfo.plannedTasks+'/'+stageLinkInfo.totalTasks+' รายการ'+
+  ' · กดลิงก์ “แผนย่อยรายสัปดาห์” ของแต่ละงวดเพื่อเปิดดูหรือแก้ไข';
+}
+requestAnimationFrame(drawCurve)}
 function drawCurve(){
  const table=document.getElementById('schedule');
  const svg=document.getElementById('curve');
@@ -116,6 +126,9 @@ function exportData(){const blob=new Blob([JSON.stringify({version:7,actual,actu
 function importData(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const obj=JSON.parse(rd.result);if(!obj.actual||typeof obj.actual!=='object')throw Error('Invalid');actual=obj.actual;planOverrides=obj.planOverrides||{};localStorage.setItem('spy-scurve-plan-overrides',JSON.stringify(planOverrides));actualMode=obj.actualMode||'percent';localStorage.setItem('spy-scurve-input-mode',actualMode);localStorage.setItem('spy-scurve-money-v2',JSON.stringify(actual));makeEditor();render()}catch(err){alert('ไฟล์ข้อมูลไม่ถูกต้อง')}};rd.readAsText(f)}
 window.addEventListener('resize',()=>requestAnimationFrame(drawCurve));
 window.addEventListener('pageshow',()=>requestAnimationFrame(drawCurve));
+window.addEventListener('storage',event=>{
+ if(event.key==='spy_milestones'||event.key==='spy_weekly_links_v1')render();
+});
 window.addEventListener('beforeprint',()=>requestAnimationFrame(drawCurve));
 window.addEventListener('afterprint',()=>requestAnimationFrame(drawCurve));
 makePlanEditor();makeEditor();restorePanels();render();
