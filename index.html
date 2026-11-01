@@ -109,8 +109,9 @@ function renderMilestones(){
    '<span class="spy-stage-badge">'+stageProgress(m).toFixed(1)+'% ผลงานจริง</span></div>'+
    '<div class="row"><div class="field"><label for="milestoneDue'+selectedMilestone+'">วันครบกำหนดตามสัญญา</label><input type="date" id="milestoneDue'+selectedMilestone+'" value="'+safe(m.due||'')+'"></div>'+
    '<div class="field"><label for="milestoneDesc'+selectedMilestone+'">รายการตรวจรับ / สิ่งที่ต้องส่ง</label><textarea id="milestoneDesc'+selectedMilestone+'" placeholder="ระบุรายละเอียดตามสัญญาจริง">'+safe(m.description||'')+'</textarea></div></div>'+
-   '<div class="actions"><button class="primary" onclick="saveMilestone('+selectedMilestone+')">💾 บันทึกกำหนดงวดนี้</button><button onclick="document.getElementById('wbsTree').scrollIntoView({behavior: \'smooth\',block:\'start\'})">⬇ ดูแผนงานย่อย</button></div>';
+   '<div class="actions"><button class="primary" onclick="saveMilestone('+selectedMilestone+')">💾 บันทึกกำหนดงวดนี้</button><button onclick="scrollToTasks()">⬇ ดูแผนงานย่อย</button></div>';
 }
+function scrollToTasks(){document.getElementById('wbsTree').scrollIntoView({behavior:'smooth',block:'start'})}
 function saveMilestone(i){
  const due=document.getElementById('milestoneDue'+i)?.value||'';
  const description=document.getElementById('milestoneDesc'+i)?.value||'';
