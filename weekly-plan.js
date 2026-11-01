@@ -193,6 +193,57 @@ function renderTable(weeks){
  if(!stage.groups.length)rows='<tr><td colspan="'+(weeks.length+3)+'" style="padding:28px;text-align:center">ยังไม่มีหมวดงานในงวดนี้ กดเพิ่มหมวดงานได้เลย</td></tr>';
  $('weeklyTableBody').innerHTML=rows;
 }
+function renderLinkStatus(){
+ const info=window.SPY_STAGE_LINK?.status(stageIndex,stages[stageIndex]);
+ if(!info)return;
+ const panel=$('weeklyLinkSummary'),head=$('weeklyLinkHeadline'),detail=$('weeklyLinkDetail');
+ const button=$('weeklyPublish');
+ if(info.linked){
+  panel.dataset.state='linked';
+  head.textContent='✅ แผนงวดที่ '+(stageIndex+1)+' เชื่อมกับแผนใหญ่แล้ว';
+  detail.textContent='วางวันครบ '+info.scheduled+'/'+info.total+' งาน · ผลงานจริง '+info.progress.toFixed(1)+'% · เปิด S-Curve ใหญ่เพื่อดูสถานะ';
+  button.textContent='✓ เชื่อมแล้ว';
+  button.disabled=true;
+ }else if(info.outdated){
+  panel.dataset.state='outdated';
+  head.textContent='⚠️ มีการปรับแผนหลังเชื่อม ต้องยืนยันใหม่';
+  detail.textContent='วันเริ่ม–สิ้นสุดครบ '+info.scheduled+'/'+info.total+' งาน · แผนที่แก้ไขยังไม่ยืนยันในแผนใหญ่';
+  button.textContent='↻ ยืนยันเชื่อมแผนที่แก้ไข';
+  button.disabled=!info.ready;
+ }else if(info.ready){
+  panel.dataset.state='ready';
+  head.textContent='✅ กำหนดวันเริ่ม–สิ้นสุดงานย่อยครบแล้ว';
+  detail.textContent=info.scheduled+'/'+info.total+' งานพร้อมเชื่อม · ตรวจทานแล้วกดปุ่มเชื่อมเพื่อแสดงสถานะใน S-Curve ใหญ่';
+  button.textContent='🔗 เชื่อมแผนย่อยเข้าแผนใหญ่';
+  button.disabled=false;
+ }else{
+  panel.dataset.state='pending';
+  head.textContent='กำลังจัดทำแผนงานย่อย งวดที่ '+(stageIndex+1);
+  detail.textContent='กำหนดวันเริ่ม–สิ้นสุดแล้ว '+info.scheduled+'/'+info.total+' งาน · ต้องครบก่อนเชื่อมแผนใหญ่';
+  button.textContent='🔗 เชื่อมเมื่อวางแผนครบ';
+  button.disabled=true;
+ }
+}
+function publishToMaster(){
+ const info=window.SPY_STAGE_LINK?.status(stageIndex,stages[stageIndex]);
+ if(!info)return alert('ระบบเชื่อมแผนยังไม่พร้อม');
+ if(!info.ready)return alert('ยังไม่สามารถเชื่อมได้: กรุณาระบุวันเริ่ม–สิ้นสุดทุกงาน ('+info.scheduled+'/'+info.total+')');
+ const outside=(()=>{
+   const bounds=stageBounds(stageIndex);let count=0;
+   for(const g of stages[stageIndex].groups||[])for(const t of g.tasks||[]){
+    const start=byDate(t.start),end=byDate(t.end);
+    if(start&&end&&(start<bounds.start||end>bounds.end))count++;
+   }
+   return count;
+ })();
+ const notice=outside?'\\nข้อสังเกต: มี '+outside+' งานระบุวันที่นอกช่วงงวดนี้ โปรดตรวจสอบความเกี่ยวข้องกับงวดอื่นด้วย':'';
+ if(!confirm('ยืนยันเชื่อมแผนย่อยงวดที่ '+(stageIndex+1)+' ('+info.total+' งาน) เข้าแผน S-Curve ใหญ่ใช่หรือไม่?\\n\\nจะแสดงสถานะแผนย่อยและความก้าวหน้าในงวดนั้น โดยไม่เปลี่ยนเส้นกราฟรายเดือนหรือยอดเงินตามสัญญา'+notice))return;
+ if(!persistStages())return;
+ const result=window.SPY_STAGE_LINK.publish(stageIndex,stages[stageIndex]);
+ if(!result.ok)return alert(result.reason);
+ renderLinkStatus();
+ $('weeklyNotice').textContent='✅ เชื่อมแผนย่อยงวดที่ '+(stageIndex+1)+' กับแผนใหญ่แล้ว สามารถกด S-Curve แผนใหญ่เพื่อตรวจสถานะได้';
+}
 function render(){
  const stage=stages[stageIndex],weeks=weeksFor(stageIndex);
  $('weeklyStageTitle').textContent=stageIndex+1;
@@ -202,7 +253,7 @@ function render(){
  $('weeklyBack').href=back;
  $('weeklyBackBottom').href=back;
  document.title='งวดที่ '+(stageIndex+1)+' · แผนงานรายสัปดาห์ · ศรพญาหิรัญ';
- renderStats(weeks);renderTable(weeks);
+ renderStats(weeks);renderTable(weeks);renderLinkStatus();
 }
 function goToStage(value){
  const i=Number(value)-1;if(!Number.isInteger(i)||i<0||i>=13)return;
@@ -313,6 +364,7 @@ $('weeklyPrev').addEventListener('click',()=>goToStage(stageIndex));
 $('weeklyNext').addEventListener('click',()=>goToStage(stageIndex+2));
 $('weeklyExpand').addEventListener('click',()=>{persistCollapsed(new Set());renderTable(weeksFor(stageIndex))});
 $('weeklyCollapse').addEventListener('click',()=>{persistCollapsed(new Set(stages[stageIndex].groups.map((_,i)=>i)));renderTable(weeksFor(stageIndex))});
+$('weeklyPublish').addEventListener('click',publishToMaster);
 $('weeklyPrint').addEventListener('click',()=>window.print());
 $('weeklyAddGroup').addEventListener('click',addGroup);
 $('weeklyEditForm').addEventListener('submit',saveTask);
