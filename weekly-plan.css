@@ -1,5 +1,5 @@
 :root{font-family:Tahoma,Arial,"Noto Sans Thai",sans-serif;color:#1d3d5e;background:#f3f7fc;--navy:#12375b;--blue:#1c70ae;--line:#dbe7f4;--muted:#7690a7}
-*{box-sizing:border-box}body{margin:0;background:#f3f7fc;color:#1d3d5e}
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;background:#f3f7fc;color:#1d3d5e}
 button,select,input,textarea{font:inherit}button,a{touch-action:manipulation}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.42}
 a{color:#1c669e;text-decoration:none}a:hover{text-decoration:underline}
 .weekly-auth{display:grid;min-height:100vh;place-content:center;padding:25px}.weekly-auth-card{text-align:center;max-width:480px;padding:42px 35px;border:1px solid #dce9f5;border-radius:20px;background:white}.weekly-auth-card img{width:90px;height:90px;object-fit:contain}
