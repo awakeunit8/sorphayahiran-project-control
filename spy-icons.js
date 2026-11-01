@@ -57,6 +57,7 @@
   }
   function enhance(){
     addNavIcons();
+    const scurveLink=document.getElementById('spyNavScurve');if(scurveLink&&!scurveLink.dataset.spyIconified){scurveLink.innerHTML=svg('chart')+'<span>S-Curve และแผนงานย่อย</span>';scurveLink.dataset.spyIconified='1';}
     document.querySelectorAll('.spy-home-actions button').forEach((btn,i)=>iconifyButton(btn,i===0?'plan':'documents'));
     document.querySelectorAll('#home .grid .actions button').forEach((btn,i)=>iconifyButton(btn,['right','daily','plus'][i]||'right'));
     iconifyButton(document.getElementById('spyLogout'),'logout');
