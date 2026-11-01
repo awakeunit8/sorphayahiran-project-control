@@ -1,0 +1,44 @@
+
+/* Contract checklists and BOQ views; aligned with Sorphayahiran blue visual system */
+.spy-table-wrap{overflow-x:auto;max-width:100%;margin:14px 0}
+.spy-table-wrap table{min-width:1040px;width:100%;border-collapse:collapse}
+.spy-compliance-table{min-width:1200px!important}
+.spy-table-wrap td,.spy-table-wrap th{vertical-align:top;padding:12px 10px}
+.spy-table-wrap th{font-size:12px;white-space:nowrap;background:#eaf4fc;color:#21496c}
+.spy-table-wrap td{font-size:12px;line-height:1.5;border-bottom:1px solid #e4eef7}
+.spy-table-wrap input:not([type=file]),.spy-table-wrap select{min-width:112px;width:100%;padding:8px;border:1px solid #d7e5f2;border-radius:8px;background:#fff;font-size:12px;color:#1e425f}
+.spy-table-wrap input[type=date]{min-width:146px}
+.spy-table-wrap button{padding:8px 10px;border:1px solid #cee3f4;border-radius:8px;background:#f6fbff;color:#23608a;cursor:pointer;font-weight:700}
+.spy-table-wrap small{display:block;font-size:11px;margin-top:5px;color:#7991a5;font-weight:400}
+.spy-table-wrap .spy-late{color:#bb3344}
+.spy-compliance-table .spy-req-title{min-width:245px;max-width:320px}
+.spy-upload-stack{display:flex;flex-direction:column;gap:7px;min-width:160px;max-width:205px}
+.spy-upload-stack input[type=file]{width:100%;max-width:205px;font-size:11px;cursor:pointer}
+.spy-upload-stack button{overflow-wrap:anywhere;white-space:normal;text-align:left}
+.spy-overdue{background:#fff8f7}
+.spy-alert-mini{background:#fff0ce;color:#945315;font-size:10px;padding:3px 6px;border-radius:10px;white-space:nowrap}
+.spy-warning{background:#fff6e8;border:1px solid #efcd91;color:#805417;padding:14px 16px;border-radius:12px;margin:15px 0;font-size:12px;line-height:1.8}
+.spy-sourced-note{background:#e9f4fc;color:#2c6994;border-radius:9px;font-size:12px;padding:11px 13px;margin-top:13px}
+.spy-stage-contract-pct{color:#2784b4;font-weight:700;line-height:1.4;font-size:11px}
+.spy-stage-card.selected .spy-stage-contract-pct{color:#124c7b}
+.spy-note{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#eef7ff;padding:12px 15px;border-radius:10px;color:#2d617f;font-size:12px}
+.spy-material-category{border:1px solid #dceaf5;border-radius:12px;margin:10px 0;padding:13px 14px;background:#f9fcff}
+.spy-material-category[open]{background:white}
+.spy-material-category summary{cursor:pointer;font-weight:800;color:#234d73;padding:4px 0;font-size:14px}
+.spy-material-category summary:hover{color:#136ca7}
+.spy-material-category .actions{margin:10px 0}
+.spy-material-category .spy-table-wrap{margin:8px 0}
+.spy-negative{color:#ad3347;font-weight:800}
+.spy-positive{color:#1d8055;font-weight:800}
+#spyOwnerFinance h3{color:#20507b;padding-top:14px;margin-top:25px;border-top:1px solid #e8f1fa}
+#spyFinanceOverview{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+#spyFinanceOverview .card strong{font-size:20px}
+#spyContractValue{font-size:16px;font-weight:700}
+@media(max-width:760px){
+ .spy-table-wrap{margin-left:-4px;margin-right:-4px}
+ .spy-table-wrap table{min-width:920px}
+ .spy-compliance-table{min-width:1110px!important}
+ .spy-compliance-table .spy-req-title{min-width:200px}
+ .spy-table-wrap th,.spy-table-wrap td{padding:9px}
+ .spy-warning{font-size:11px}
+}
