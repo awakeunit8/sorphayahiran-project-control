@@ -66,13 +66,59 @@ milestones.forEach((r,i)=>{
  months.map(m=>'<td class="'+(actual[key(m)]!==undefined&&start<=new Date(m.getFullYear(),m.getMonth()+1,0)&&end>=m?'actualbar':'')+'"></td>').join('')+'</tr>';
 });
 html+='</tbody><tfoot><tr class="monthly-days"><th colspan="3">ระยะเวลาดำเนินงานในแต่ละเดือน (วัน)</th>'+months.map(m=>'<th>'+overlapDays(projectStart,projectEnd,new Date(m.getFullYear(),m.getMonth(),1),new Date(m.getFullYear(),m.getMonth()+1,0))+'</th>').join('')+'</tr><tr class="monthly-total"><th colspan="3">มูลค่างานตามแผนรายเดือน (บาท)</th>'+months.map(m=>'<th>'+(window.spyIsOwner()?fmt(Math.round(monthlyMoney(m))):'—')+'</th>').join('')+'</tr><tr><th colspan="3">แผนสะสม (%)</th>'+months.map(m=>'<th>'+planAt(new Date(m.getFullYear(),m.getMonth()+1,0)).toFixed(1)+'</th>').join('')+'</tr>';if(mode==='compare')html+='<tr><th colspan="3">งานจริงสะสม (%)</th>'+months.map(m=>'<th>'+(actualOnRecordedTimeline(m)===null?'—':actualOnRecordedTimeline(m).toFixed(2))+'</th>').join('')+'</tr>';html+='</tfoot>';document.getElementById('schedule').innerHTML=html;requestAnimationFrame(drawCurve)}
-function drawCurve(){const t=document.getElementById('schedule'),svg=document.getElementById('curve');const rows=t.tBodies[0].rows;if(!rows.length)return;const head=t.tHead.rows[0];const first=head.cells[3],last=head.cells[head.cells.length-1];const top=rows[0].offsetTop,bottom=rows[rows.length-1].offsetTop+rows[rows.length-1].offsetHeight;const x0=first.offsetLeft,x1=last.offsetLeft+last.offsetWidth;const h=bottom-top;svg.style.left=x0+'px';svg.style.top=top+'px';svg.style.width=(x1-x0)+'px';svg.style.height=h+'px';svg.setAttribute('viewBox','0 0 '+(x1-x0)+' '+h);const x=i=>head.cells[i+3].offsetLeft-x0+head.cells[i+3].offsetWidth/2;const y=v=>h-6-(Math.max(0,Math.min(100,v))/100)*(h-16);const pts=months.map((m,i)=>x(i)+','+y(planAt(new Date(m.getFullYear(),m.getMonth()+1,0)))).join(' ');let out='<polyline points="'+pts+'" stroke="#1674d2"/>';if(mode==='compare'){const known=months.map((m,i)=>({i,m,v:actualOnRecordedTimeline(m)})).filter(o=>o.v!==null&&Number.isFinite(o.v));if(known.length){out+='<polyline points="'+known.map(o=>x(o.i)+','+y(Number(o.v))).join(' ')+'" stroke="#119b64"/>';for(const o of known)out+='<circle cx="'+x(o.i)+'" cy="'+y(Number(o.v))+'" r="2.5" fill="#119b64"/>'}}svg.innerHTML=out}
+function drawCurve(){
+ const table=document.getElementById('schedule');
+ const svg=document.getElementById('curve');
+ const holder=document.getElementById('gridHolder');
+ if(!table||!svg||!holder||!table.tBodies.length||!table.tBodies[0].rows.length)return;
+ const rows=table.tBodies[0].rows;
+ const head=table.tHead.rows[0];
+ const first=head.cells[3],last=head.cells[head.cells.length-1];
+ if(!first||!last)return;
+ // Measure positions against the SAME positioned container as the SVG.
+ // OffsetTop/OffsetLeft differ across table layouts and may be zero while
+ // the app is gated, which previously left the S-Curve outside the grid.
+ const box=holder.getBoundingClientRect();
+ const start=first.getBoundingClientRect(),end=last.getBoundingClientRect();
+ const topRow=rows[0].getBoundingClientRect(),bottomRow=rows[rows.length-1].getBoundingClientRect();
+ const left=start.left-box.left,top=topRow.top-box.top;
+ const width=end.right-start.left,height=bottomRow.bottom-topRow.top;
+ if(width<2||height<2){svg.innerHTML='';return}
+ svg.style.left=left+'px';
+ svg.style.top=top+'px';
+ svg.style.width=width+'px';
+ svg.style.height=height+'px';
+ svg.style.zIndex='3';
+ svg.style.visibility='visible';
+ svg.setAttribute('viewBox','0 0 '+width+' '+height);
+ svg.setAttribute('preserveAspectRatio','none');
+ const x=i=>{
+  const r=head.cells[i+3].getBoundingClientRect();
+  return r.left+r.width/2-start.left;
+ };
+ const y=v=>height-6-(Math.max(0,Math.min(100,v))/100)*(height-16);
+ const plans=months.map((month,i)=>x(i)+','+y(planAt(new Date(month.getFullYear(),month.getMonth()+1,0)))).join(' ');
+ let shapes='<polyline points="'+plans+'" stroke="#1674d2"/>';
+ if(mode==='compare'){
+  const known=months.map((month,i)=>({i,value:actualOnRecordedTimeline(month)}))
+   .filter(row=>row.value!==null&&Number.isFinite(row.value));
+  if(known.length){
+   shapes+='<polyline points="'+known.map(row=>x(row.i)+','+y(Number(row.value))).join(' ')+'" stroke="#119b64"/>';
+   for(const row of known)shapes+='<circle cx="'+x(row.i)+'" cy="'+y(Number(row.value))+'" r="2.5" fill="#119b64"/>';
+  }
+ }
+ svg.innerHTML=shapes;
+}
 function makeEditor(){document.getElementById('actualMode').value=actualMode;document.querySelectorAll('.actualInputLabel').forEach(el=>el.textContent=actualMode==='percent'?'ผลงานจริงสะสม (%)':'มูลค่างานจริงรายเดือน (บาท)');let s='';for(let i=0;i<months.length;i+=2){s+='<tr>';for(let j=i;j<i+2;j++){if(j>=months.length){s+='<td></td><td></td>';continue}const m=months[j],k=key(m);s+='<td>'+label(m)+'</td><td><input type="number" min="0" step="0.01" value="'+(actual[k]??'')+'" data-month="'+k+'" onchange="updateActual(this)"></td>'}s+='</tr>'}document.getElementById('editBody').innerHTML=s}
 function updateActual(el){const v=el.value.trim();if(v==='')delete actual[el.dataset.month];else{const n=Number(v);if(!Number.isFinite(n)||n<0||(actualMode==='percent'&&n>100)){alert(actualMode==='percent'?'กรอกเปอร์เซ็นต์ 0–100':'กรอกจำนวนเงินตั้งแต่ 0 บาทขึ้นไป');return}actual[el.dataset.month]=n}localStorage.setItem('spy-scurve-money-v2',JSON.stringify(actual));render()}
 function clearActual(){if(!confirm('ยืนยันล้างข้อมูลผลงานจริงทั้งหมด?'))return;actual={};localStorage.removeItem('spy-scurve-money-v2');makeEditor();render()}
 function exportData(){const blob=new Blob([JSON.stringify({version:7,actual,actualMode,planOverrides},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='spy-scurve-actual.json';a.click();URL.revokeObjectURL(a.href)}
 function importData(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const obj=JSON.parse(rd.result);if(!obj.actual||typeof obj.actual!=='object')throw Error('Invalid');actual=obj.actual;planOverrides=obj.planOverrides||{};localStorage.setItem('spy-scurve-plan-overrides',JSON.stringify(planOverrides));actualMode=obj.actualMode||'percent';localStorage.setItem('spy-scurve-input-mode',actualMode);localStorage.setItem('spy-scurve-money-v2',JSON.stringify(actual));makeEditor();render()}catch(err){alert('ไฟล์ข้อมูลไม่ถูกต้อง')}};rd.readAsText(f)}
-window.addEventListener('resize',drawCurve);makePlanEditor();makeEditor();restorePanels();render();
+window.addEventListener('resize',()=>requestAnimationFrame(drawCurve));
+window.addEventListener('pageshow',()=>requestAnimationFrame(drawCurve));
+window.addEventListener('beforeprint',()=>requestAnimationFrame(drawCurve));
+window.addEventListener('afterprint',()=>requestAnimationFrame(drawCurve));
+makePlanEditor();makeEditor();restorePanels();render();
 </script>
 <script>
 /* The S-Curve intentionally uses the same temporary Owner/Admin session as this site's login.
@@ -84,6 +130,8 @@ window.addEventListener('resize',drawCurve);makePlanEditor();makeEditor();restor
   if(role==='owner'||role==='admin'){
     document.body.classList.add('spy-scurve-auth');
     if(role==='admin')document.body.classList.add('spy-scurve-admin');
+    // Recalculate after the previously hidden grid becomes visible.
+    requestAnimationFrame(()=>requestAnimationFrame(drawCurve));
   }else{
     location.replace('./index.html?return=scurve');
   }
