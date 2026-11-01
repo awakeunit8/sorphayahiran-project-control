@@ -144,3 +144,14 @@ body>main #taskDocuments .spy-icon-button .spy-icon{color:#2877a7}
  .spy-login-company .spy-company-logo{width:58px;height:58px}
  .spy-login-card-company{margin-bottom:21px}
 }
+
+/* Each installment has a standalone WEEKLY plan. The master S-Curve stays monthly. */
+.spy-stage-grid .spy-stage-unit{display:flex;flex-direction:column;min-width:0;border-radius:14px;background:#fff;border:1px solid #dceaf6;overflow:hidden;transition:border-color .15s ease,box-shadow .15s ease}
+.spy-stage-grid .spy-stage-unit:hover{border-color:#b6daf2;box-shadow:0 5px 14px #235a8e0f}
+body>main .spy-stage-unit .spy-stage-card{border:none;border-radius:0;width:100%;min-height:133px;box-shadow:none!important;flex:1;background:#fff;padding:14px}
+body>main .spy-stage-unit .spy-stage-card.selected{background:#f0f8ff;box-shadow:inset 0 0 0 1px #92c8ee!important}
+.spy-stage-unit .spy-stage-open{background:#eff7ff;color:#226c9f;font-size:12px;font-weight:800;line-height:1.45;text-decoration:none;padding:12px 9px;text-align:center;border-top:1px solid #dcebf6;display:block}
+.spy-stage-unit .spy-stage-open:hover{background:#dcefff;color:#105686;text-decoration:none}
+.spy-stage-detail-open{display:inline-flex;align-items:center;justify-content:center;min-height:39px;padding:9px 13px;background:#1970b1;color:#fff!important;border-radius:9px;font-size:13px;font-weight:800;text-decoration:none!important}
+.spy-stage-detail-open:hover{background:#125d97}
+@media(max-width:760px){body>main .spy-stage-unit .spy-stage-card{min-height:128px;padding:12px}.spy-stage-unit .spy-stage-open{font-size:11px;padding:10px 5px}}
