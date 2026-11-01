@@ -1,0 +1,37 @@
+
+:root{font-family:Tahoma,Arial,sans-serif}body{background:#f3f7fc;color:#193857}
+header{background:linear-gradient(107deg,#0e304e,#17649b);color:#fff;border-bottom:3px solid #31b2da}
+.spy-brand-heading{display:flex;align-items:center;gap:14px}.spy-brand-heading img{width:58px;height:58px;object-fit:contain;background:#fff;border-radius:12px;padding:5px}
+.spy-brand-heading h1{font-size:23px;letter-spacing:-.2px}.spy-brand-heading small{display:block;font-size:12px;margin-top:5px}
+.spy-scurve-app{min-height:100vh}body:not(.spy-scurve-auth) .spy-scurve-app{display:none!important}
+#spyAuthGate{padding:35px 20px;text-align:center;background:#f3f7fc;color:#234868;max-width:580px;margin:10vh auto;border:1px solid #d8e8f4;border-radius:19px}
+body.spy-scurve-auth #spyAuthGate{display:none}#spyAuthGate a,.spy-return{display:inline-block;border-radius:9px;background:#176ea9;color:white;text-decoration:none;font-weight:700;padding:11px 17px}
+.spy-return{background:#e5f3ff;color:#1b5b89;border:1px solid #cce4f7}
+.spy-inline-heading{display:flex;gap:15px;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:0 3px 12px}
+.spy-inline-heading h2{margin:0;font-size:19px;color:#1a496f}.spy-inline-heading p{margin:5px 0 0;color:#71879e;font-size:12px}
+.spy-stage-control{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.spy-stage-control button{font-size:12px;padding:9px 12px}
+.spy-expand{border:0;box-shadow:none;padding:4px 1px;background:transparent;font-size:12px;color:#125d97;vertical-align:middle}
+.schedule .desc{line-height:1.5}.schedule .spy-subtask-row td{height:25px;background:#f8fbff;color:#35637e}
+.schedule .spy-subtask-row td.task-time{background:#e5f3ff;border-bottom:1px solid #c9e7fa}
+.schedule .spy-subtask-row td.task-time.active{background:#8dcdeb}.schedule .spy-subtask-row td.task-time.actual-done{background:#62beaa}
+.schedule .spy-subtask-row .desc{font-size:9px;white-space:normal;overflow-wrap:anywhere}.schedule .spy-subtask-row .desc button{padding:0;border:0;text-align:left;font-size:9px;color:#275f90;background:transparent;font-weight:600;max-width:100%;white-space:normal}
+.schedule .spy-subtask-row .desc button:hover{text-decoration:underline}.schedule .spy-subtask-row .no{color:#5694b9}
+.schedule .spy-group-row td{background:#e7f1fc;font-weight:700;color:#295c82;height:27px;font-size:10px}
+.spy-stage-percent{font-size:10px;display:inline-block;color:#1f7d66;background:#e0f6ed;border-radius:8px;padding:1px 5px;margin-left:3px}
+.spy-sub-editor{border:1px solid #cee4f7;background:#f9fcff;border-radius:13px;margin-top:14px;padding:16px}
+.spy-sub-editor h3{font-size:17px;color:#20547c;margin-top:0}.spy-sub-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.spy-sub-form label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#3e6283}.spy-sub-form label.wide{grid-column:1/-1}
+.spy-sub-form input,.spy-sub-form textarea,.spy-sub-form select{width:100%;padding:10px;border-radius:9px;border:1px solid #d2e2ef;background:white;color:#143650}
+.spy-sub-form textarea{min-height:80px}.spy-sub-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.spy-sub-actions button{background:#176eb0;color:white;border:0}.spy-sub-actions button.ghost{background:white;color:#176eb0;border:1px solid #bcd7ed}
+.spy-callout{padding:12px;background:#eaf5ff;border:1px solid #cfe5f6;border-radius:9px;font-size:12px;color:#335f7c;line-height:1.7;margin:12px 0}
+.spy-sensitive-warning{color:#915c16;background:#fff3df;padding:10px 13px;border-radius:9px;margin:10px 0;font-size:11px}
+body.spy-scurve-admin .spy-sensitive,body.spy-scurve-admin .spy-price,body.spy-scurve-admin .spy-owner-only{display:none!important}
+@media(max-width:850px){.spy-sub-form{grid-template-columns:1fr 1fr}.spy-inline-heading{align-items:flex-start}}
+@media(max-width:540px){.spy-sub-form{grid-template-columns:1fr}.spy-brand-heading h1{font-size:18px}.spy-stage-control button{font-size:11px}}
+@media print{
+ #spyAuthGate,.spy-expand,.spy-stage-control,.spy-sub-editor,.spy-sub-actions,.spy-return,.spy-inline-heading,.spy-no-print{display:none!important}
+ .schedule .spy-subtask-row td{height:19px;font-size:7px}.schedule .spy-group-row td{height:20px;font-size:7px}
+ .schedule .spy-subtask-row .desc button{font-size:7px}.schedule .spy-subtask-row td.task-time.active{background:#b3dbf5!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+ header{display:none!important}.card{page-break-inside:avoid}
+}
