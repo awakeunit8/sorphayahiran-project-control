@@ -236,8 +236,8 @@ function publishToMaster(){
    }
    return count;
  })();
- const notice=outside?'\\nข้อสังเกต: มี '+outside+' งานระบุวันที่นอกช่วงงวดนี้ โปรดตรวจสอบความเกี่ยวข้องกับงวดอื่นด้วย':'';
- if(!confirm('ยืนยันเชื่อมแผนย่อยงวดที่ '+(stageIndex+1)+' ('+info.total+' งาน) เข้าแผน S-Curve ใหญ่ใช่หรือไม่?\\n\\nจะแสดงสถานะแผนย่อยและความก้าวหน้าในงวดนั้น โดยไม่เปลี่ยนเส้นกราฟรายเดือนหรือยอดเงินตามสัญญา'+notice))return;
+ const notice=outside?'\nข้อสังเกต: มี '+outside+' งานระบุวันที่นอกช่วงงวดนี้ โปรดตรวจสอบความเกี่ยวข้องกับงวดอื่นด้วย':'';
+ if(!confirm('ยืนยันเชื่อมแผนย่อยงวดที่ '+(stageIndex+1)+' ('+info.total+' งาน) เข้าแผน S-Curve ใหญ่ใช่หรือไม่?\n\nจะแสดงสถานะแผนย่อยและความก้าวหน้าในงวดนั้น โดยไม่เปลี่ยนเส้นกราฟรายเดือนหรือยอดเงินตามสัญญา'+notice))return;
  if(!persistStages())return;
  const result=window.SPY_STAGE_LINK.publish(stageIndex,stages[stageIndex]);
  if(!result.ok)return alert(result.reason);
