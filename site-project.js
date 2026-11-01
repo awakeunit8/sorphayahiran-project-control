@@ -167,6 +167,8 @@ function renderSummary(){
  let sent=requirements.filter(d=>['ส่งแล้ว','รออนุมัติ','อนุมัติแล้ว'].includes(d.status)).length;
  let late=requirements.filter(d=>due(d)&&due(d)<isoToday()&&!['ส่งแล้ว','รออนุมัติ','อนุมัติแล้ว'].includes(d.status)).length;
  $('spyDocStats').innerHTML='ทั้งหมด <strong>'+requirements.length+'</strong> · ส่งแล้ว/รออนุมัติ <strong>'+sent+'</strong> · <strong class="spy-late">ค้างเกินกำหนด '+late+'</strong>';
+ if($('docCount'))$('docCount').textContent=requirements.length;
+ if($('approvedCount'))$('approvedCount').textContent=requirements.filter(d=>d.status==='อนุมัติแล้ว').length;
 }
 function renderDocs(){
  if(!$('spyRequirementsRows'))return;
@@ -205,6 +207,8 @@ function renderCatalog(){
  '<td><input value="'+esc(t.number)+'" onchange="spySaveMaterial('+i+','+j+',\'number\',this.value)" aria-label="เลขที่อนุมัติ"></td>'+
  '<td><input type="date" value="'+esc(t.submitted)+'" onchange="spySaveMaterial('+i+','+j+',\'submitted\',this.value)" aria-label="วันที่ส่ง"></td></tr>').join('')+'</tbody></table></div></details>').join('');
 }
+const originalRefresh=window.refresh;
+if(typeof originalRefresh==='function')window.refresh=function(){originalRefresh();if($('spyDocStats'))renderSummary()};
 addStageBadges();hydrate(false);
 if($('spyContractStart')){$('spyContractStart').value=start;$('spyContractStart').onchange=e=>updateContractDate(e.target.value)}
 if($('spyOwnerContractStart')){$('spyOwnerContractStart').value=start;$('spyOwnerContractStart').onchange=e=>updateContractDate(e.target.value)}
