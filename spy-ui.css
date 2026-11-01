@@ -110,3 +110,10 @@ body>main .spy-stage-card.selected{border-color:#2484c1;background:#edf7ff;box-s
 .spy-stage-badge{font-size:12px;font-weight:800;border-radius:16px;background:#e0f1fd;color:#176b9e;padding:7px 11px}
 .spy-active-stage .field textarea{min-height:55px}
 @media(max-width:760px){.spy-stage-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}body>main .spy-stage-card{min-height:137px;padding:12px}.spy-active-stage{padding:12px}}
+
+/* Task date + quick-open affordances */
+body>main .spy-task-open{border:0;background:transparent;color:#176a9e;font-size:13px;font-weight:800;text-align:left;padding:4px 0;cursor:pointer;white-space:normal}
+body>main .spy-task-open:hover{text-decoration:underline}
+body>main .spy-task-dates{display:block;font-size:11px;line-height:1.6;color:#748aa0;margin-top:3px}
+.spy-work-steps{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0 17px}
+.spy-work-steps span{background:#e9f4fd;border:1px solid #d2e7f8;color:#376e97;font-size:11px;padding:7px 10px;border-radius:20px}
