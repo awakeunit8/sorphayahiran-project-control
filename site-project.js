@@ -220,4 +220,24 @@ window.showTab=function(tab){originalTab(tab);if(tab==='contractDocs')renderDocs
 const panel=$('plan')?.querySelector('.panel:nth-of-type(2) .actions');
 if(panel){const btn=document.createElement('button');btn.textContent='↻ นำเข้า 13 งวดจากเอกสารใหม่';btn.onclick=window.spyReimportStages;panel.appendChild(btn)}
 window.SPY_SITE={getStart:()=>start,isoAdd,displayDate:dateThai,csv,currency:v=>Number(v||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2})};
+
+function openWorkFromScurve(){
+ if(new URLSearchParams(location.search).get('tab')!=='plan')return;
+ let pending=null;try{pending=JSON.parse(sessionStorage.getItem('spy_scurve_jump')||'null')}catch{}
+ if(!pending||!Number.isInteger(pending.stage)||pending.stage<0||pending.stage>=13)return;
+ const stage=milestones[pending.stage];if(!stage)return;
+ if(typeof chooseMilestone==='function')chooseMilestone(pending.stage);
+ let gi=-1,ti=-1;
+ for(let i=0;i<stage.groups.length;i++){
+  const j=(stage.groups[i].tasks||[]).findIndex(t=>t.id===pending.taskId);
+  if(j>=0){gi=i;ti=j;break}
+ }
+ if(gi>=0&&typeof selectWorkTask==='function'){
+  selectWorkTask(gi,ti);
+  setTimeout(()=>document.getElementById('workEditor')?.scrollIntoView({behavior:'smooth',block:'start'}),200);
+ }
+ if(typeof window.showTab==='function')window.showTab('plan');
+ try{sessionStorage.removeItem('spy_scurve_jump')}catch{}
+}
+openWorkFromScurve();
 })();
