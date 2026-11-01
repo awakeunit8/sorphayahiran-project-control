@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+<title id="title">สัญลักษณ์บริษัท ศรพญาหิรัญ</title>
+<desc id="desc">สัญลักษณ์รูปทรงเรขาคณิตสีน้ำเงินและฟ้าอ้างอิงภาพตราบริษัท</desc>
+<defs>
+  <linearGradient id="blue" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1ccadd"/><stop offset=".48" stop-color="#078fd9"/><stop offset="1" stop-color="#2011b8"/></linearGradient>
+  <linearGradient id="dark" x1=".1" y1="0" x2=".9" y2=".9"><stop stop-color="#0b89db"/><stop offset="1" stop-color="#2214bb"/></linearGradient>
+</defs>
+<!-- These vector paths are a close visual redraw of the supplied company mark. -->
+<path fill="url(#blue)" d="M14 86 83 16 97 32 46 83h65l19 16H23L14 94Z"/>
+<path fill="url(#dark)" d="m88 16 27 32H79l10-17h6L83 18Z"/>
+<path fill="url(#blue)" d="M63 60h59l31 34-22 15H22L8 96l14-9h108l-18-13H51Z"/>
+<path fill="url(#blue)" d="M43 115h85v6H43z"/>
+<path fill="url(#blue)" d="M49 126h80v6H49z"/>
+<path fill="url(#blue)" d="m55 136 74 0-10 8H67Z"/>
+</svg>
