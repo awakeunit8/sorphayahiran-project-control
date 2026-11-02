@@ -7,6 +7,7 @@
 <title>แผนงานย่อยรายสัปดาห์ · ศรพญาหิรัญ</title>
 <link rel="icon" type="image/svg+xml" href="spy-mark.svg">
 <link rel="stylesheet" href="weekly-plan.css">
+<style id="weeklyPrintPageSettings">@page { size: A3 landscape; margin: 9mm; }</style>
 </head>
 <body>
 <div id="weeklyAuth" hidden role="alert" class="weekly-auth">
@@ -52,9 +53,26 @@
           <button type="button" id="weeklyExpand">เปิดทุกหมวด</button>
           <button type="button" id="weeklyCollapse">ย่อทุกหมวด</button>
           <button type="button" id="weeklyPublish" class="weekly-primary">🔗 เชื่อมแผนย่อยเข้าแผนใหญ่</button>
+          <div class="weekly-print-config" role="group" aria-label="ตั้งค่าขนาดกระดาษ">
+            <label for="weeklyPaperSize">ขนาดกระดาษ
+              <select id="weeklyPaperSize" aria-label="ขนาดกระดาษ">
+                <option value="A4">A4</option>
+                <option value="A3" selected>A3</option>
+                <option value="A2">A2</option>
+                <option value="A1">A1</option>
+              </select>
+            </label>
+            <label for="weeklyPaperOrientation">การวางกระดาษ
+              <select id="weeklyPaperOrientation" aria-label="แนวกระดาษ">
+                <option value="landscape" selected>แนวนอน</option>
+                <option value="portrait">แนวตั้ง</option>
+              </select>
+            </label>
+          </div>
           <button type="button" id="weeklyPrint">⎙ พิมพ์ / บันทึก PDF</button>
         </div>
       </div>
+      <p id="weeklyPrintInfo" class="weekly-print-info" aria-live="polite">A3 แนวนอน · ระบบแบ่งตารางตามช่วงสัปดาห์ให้อ่านง่ายเมื่อพิมพ์</p>
       <div class="weekly-legend">
         <span><i class="weekly-legend-plan"></i> ช่วงงานที่กำหนดวันที่แล้ว</span>
         <span><i class="weekly-legend-actual"></i> ผลงานจริงสะสมตาม %</span>
@@ -81,6 +99,7 @@
       </div>
     </section>
   </main>
+  <div id="weeklyPrintSheets" class="weekly-print-pages" aria-label="รายงานแผนงานย่อยสำหรับพิมพ์"></div>
   <div class="weekly-dialog-backdrop" id="weeklyBackdrop" hidden>
     <section class="weekly-editor" role="dialog" aria-modal="true" aria-labelledby="weeklyEditorTitle">
       <div class="weekly-editor-top">
