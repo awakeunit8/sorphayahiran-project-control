@@ -316,8 +316,13 @@ function printLayout(stage,weekCount){
 }
 function printWeekDate(date){
  if(!date)return '';
- return String(date.getUTCDate()).padStart(2,'0')+'/'+String(date.getUTCMonth()+1).padStart(2,'0');
+ const buddhistYear=String(date.getUTCFullYear()+543).slice(-2);
+ return String(date.getUTCDate()).padStart(2,'0')+'/'+String(date.getUTCMonth()+1).padStart(2,'0')+'/'+buddhistYear;
 }
+// Embed the existing company-mark SVG in each print page to avoid a missing logo.png
+// or a delayed image request when Chrome opens Print/Save as PDF.
+const PRINT_LOGO_SVG="<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 643 595\" role=\"img\" aria-labelledby=\"title desc\">\n<title id=\"title\">ตราสัญลักษณ์บริษัท ศรพญาหิรัญ จำกัด</title>\n<desc id=\"desc\">รูปทรงเรขาคณิตสีฟ้าทางซ้ายและน้ำเงินทางขวา อ้างอิงจากภาพโลโก้ความคมชัดสูงที่บริษัทส่งมา</desc>\n<defs>\n  <linearGradient id=\"cyan\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\">\n    <stop offset=\"0\" stop-color=\"#11bbdf\"/>\n    <stop offset=\"1\" stop-color=\"#00b5e3\"/>\n  </linearGradient>\n  <linearGradient id=\"blue\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\">\n    <stop offset=\"0\" stop-color=\"#1135dd\"/>\n    <stop offset=\"1\" stop-color=\"#1611bf\"/>\n  </linearGradient>\n  <clipPath id=\"left\"><path d=\"M0 0H330V595H0Z\"/></clipPath>\n  <clipPath id=\"right\"><path d=\"M330 0H643V595H330Z\"/></clipPath>\n</defs>\n<!-- Roof apex and upper folded segment -->\n<path d=\"M135 290 330 35 330 136 291 220 330 220 330 290Z\" fill=\"url(#cyan)\"/>\n<path d=\"M330 35 433 168H330Z\" fill=\"url(#blue)\"/>\n<!-- S-shaped folded wing, with the horizontal white void left open -->\n<path d=\"M330 220H471L583 366 529 411H330V341H462L423 290H330Z\" fill=\"url(#blue)\"/>\n<!-- Lower horizontal ribbon and pointed left tip -->\n<path d=\"M97 341H330V411H133L76 367Z\" fill=\"url(#cyan)\"/>\n<!-- Narrow bevel-edged stripe -->\n<g clip-path=\"url(#left)\" fill=\"url(#cyan)\">\n  <path d=\"M194 445H466L478 461 465 476H194L183 461Z\"/>\n  <path d=\"M193 506H466V551Q329 620 193 551Z\"/>\n</g>\n<g clip-path=\"url(#right)\" fill=\"url(#blue)\">\n  <path d=\"M194 445H466L478 461 465 476H194L183 461Z\"/>\n  <path d=\"M193 506H466V551Q329 620 193 551Z\"/>\n</g>\n</svg>";
+const printCreatedAt=()=>new Date().toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Bangkok'});
 function paperTaskCell(task){
  const start=byDate(task.start),end=byDate(task.end);
  const scheduled=!!start&&!!end&&start<=end;
@@ -334,8 +339,10 @@ function printSheet(installment,pageNo,pageCount){
  const header='<thead><tr><th class="print-col-task">หมวด / งานย่อย</th>'+
   '<th class="print-col-owner">ผู้รับผิดชอบ</th>'+
   '<th class="print-col-progress">แผน / จริง</th>'+
-  weeks.map((week,j)=>'<th class="weekly-print-week'+(currentWeek(week)?' weekly-now':'')+'" title="สัปดาห์ '+(j+1)+'">'+
-   'ส.'+(j+1)+'<span>'+printWeekDate(week.start)+'</span></th>').join('')+
+  weeks.map((week,j)=>'<th class="weekly-print-week'+(currentWeek(week)?' weekly-now':'')+'" title="สัปดาห์ที่ '+(j+1)+' · '+printWeekDate(week.start)+' ถึง '+printWeekDate(week.end)+'">'+
+   'ส.'+(j+1)+
+   '<span class="weekly-print-week-start">'+printWeekDate(week.start)+'</span>'+
+   '<span class="weekly-print-week-end">'+printWeekDate(week.end)+'</span></th>').join('')+
   '</tr></thead>';
  let rows='';
  for(const group of stage.groups||[]){
@@ -353,11 +360,12 @@ function printSheet(installment,pageNo,pageCount){
  if(!rows)rows='<tr><td colspan="'+(weeks.length+3)+'">ยังไม่มีรายการงานย่อย</td></tr>';
  return '<section class="weekly-print-sheet" '+printLayout(stage,weeks.length)+'>'+
   '<div class="weekly-print-top"><div class="weekly-print-identity">'+
-  '<img src="logo.png" alt="ตราบริษัท" onerror="this.onerror=null;this.src=\'spy-mark.svg\'">'+
+  '<span class="weekly-print-logo" aria-label="ตราสัญลักษณ์บริษัท ศรพญาหิรัญ">'+PRINT_LOGO_SVG+'</span>'+
   '<div><strong>บริษัท ศรพญาหิรัญ จำกัด</strong>'+
   '<p>โครงการอาคารเรียนและปฏิบัติการเอนกประสงค์ · มทร.ล้านนา ดอยสะเก็ด</p></div></div>'+
-  '<span class="weekly-print-page-number">'+paperPrefs.size+' '+paperOrientationLabel()+
-    ' · หน้าที่ '+pageNo+'/'+pageCount+'</span></div>'+
+  '<div class="weekly-print-meta"><span class="weekly-print-date">วันที่จัดพิมพ์ '+printCreatedAt()+'</span>'+
+    '<span class="weekly-print-page-number">'+paperPrefs.size+' '+paperOrientationLabel()+
+    ' · หน้าที่ '+pageNo+'/'+pageCount+'</span></div></div>'+
   '<div class="weekly-print-title"><h2>แผนงานย่อยรายสัปดาห์ · งวดที่ '+(installment+1)+'</h2>'+
   '<p>กำหนดงวด '+escapeHTML(thaiDate(bounds.start))+' – '+escapeHTML(thaiDate(bounds.end))+
   ' · ครบทั้ง '+weeks.length+' สัปดาห์ในหน้าเดียว</p></div>'+
@@ -371,7 +379,7 @@ function printSheet(installment,pageNo,pageCount){
    '<colgroup><col class="print-col-task"><col class="print-col-owner"><col class="print-col-progress">'+
     weeks.map(()=>'<col class="weekly-print-week">').join('')+'</colgroup>'+
    header+'<tbody>'+rows+'</tbody></table>'+
-  '<p class="weekly-print-foot">อ้างอิงเอกสารแบ่งงวด หน้า '+D.installments[installment].page+
+  '<p class="weekly-print-foot">วันที่จัดพิมพ์ '+printCreatedAt()+' · อ้างอิงเอกสารแบ่งงวด หน้า '+D.installments[installment].page+
    ' · ตารางครบทั้งงวดแสดงรายสัปดาห์โดยไม่ตัดเป็นช่วง · เอกสารก่อนใช้งานจริงควรผ่านการตรวจสอบแผน</p></section>';
 }
 function buildPrintSheets(){
