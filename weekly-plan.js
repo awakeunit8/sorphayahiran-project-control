@@ -85,9 +85,10 @@ if(stageChanged)save('spy_milestones',stages);
 let collapsedByStage=storage('spy_weekly_collapsed_v1',{});
 if(!collapsedByStage||typeof collapsedByStage!=='object')collapsedByStage={};
 let selected=null;
-let printExpanded=false;
 const persistStages=()=>save('spy_milestones',stages);
-const collapsed=()=>new Set(Array.isArray(collapsedByStage[stageIndex])?collapsedByStage[stageIndex]:[]);
+// The printout uses the exact same group visibility as the screen.
+const collapsedFor=i=>new Set(Array.isArray(collapsedByStage[i])?collapsedByStage[i]:[]);
+const collapsed=()=>collapsedFor(stageIndex);
 const persistCollapsed=set=>{collapsedByStage[stageIndex]=[...set];save('spy_weekly_collapsed_v1',collapsedByStage)};
 function stageBounds(i){
  const due=byDate(stages[i]?.due)||plusDays(contractStart(),D.installments[i].days);
@@ -170,7 +171,7 @@ function renderTable(weeks){
  const stage=stages[stageIndex],hiddenGroups=collapsed();
  let rows='';
  stage.groups.forEach((g,groupIndex)=>{
-  const isClosed=!printExpanded&&hiddenGroups.has(groupIndex);
+  const isClosed=hiddenGroups.has(groupIndex);
   rows+='<tr class="weekly-group"><th colspan="'+(weeks.length+3)+'"><div class="weekly-group-header">'+
    '<button type="button" data-week-action="toggle" data-group="'+groupIndex+'" aria-expanded="'+(!isClosed)+'">'+
    (isClosed?'▸ ':'▾ ')+escapeHTML(g.name)+' <span>('+g.tasks.length+' งาน · จริง '+groupPct(g,'actual').toFixed(1)+'%)</span></button>'+
@@ -294,9 +295,10 @@ function printWidthHeight(){
   height:(landscape?format.width:format.height)-2*format.margin
  };
 }
-function printLayout(stage,weekCount){
+function printLayout(stage,weekCount,installment){
  const size=printWidthHeight(),groups=(stage?.groups||[]).length;
- const tasks=(stage?.groups||[]).reduce((sum,g)=>sum+(g.tasks||[]).length,0);
+ const closed=collapsedFor(installment);
+ const tasks=(stage?.groups||[]).reduce((sum,g,i)=>sum+(closed.has(i)?0:(g.tasks||[]).length),0);
  // Keep complete installment rows on one sheet: compress spacing when necessary
  // instead of slicing weeks across multiple sheets.
  const availableRowSpace=Math.max(40,size.height-50);
@@ -363,10 +365,18 @@ function printSheet(installment,pageNo,pageCount){
    '<span class="weekly-print-week-year">'+printWeekYearLabel(week.start,week.end)+'</span></th>').join('')+
   '</tr></thead>';
  let rows='';
- for(const group of stage.groups||[]){
-  const tasks=group.tasks||[];
-  rows+='<tr class="weekly-print-group"><th colspan="'+(weeks.length+3)+'">'+escapeHTML(group.name)+
-   ' · '+tasks.length+' งานย่อย</th></tr>';
+ const closed=collapsedFor(installment);
+ let visibleTasks=0;
+ (stage.groups||[]).forEach((group,groupIndex)=>{
+  const tasks=group.tasks||[],isCollapsed=closed.has(groupIndex);
+  // Show every category heading; print only the tasks currently expanded
+  // for this installment, preserving the same order as the web view.
+  rows+='<tr class="weekly-print-group'+(isCollapsed?' weekly-print-group-closed':'')+'"><th colspan="'+(weeks.length+3)+'">'+
+   '<span class="weekly-print-group-arrow" aria-hidden="true">'+(isCollapsed?'▸':'▾')+'</span> '+
+   escapeHTML(group.name)+' <span class="weekly-print-group-info">('+tasks.length+' งาน · จริง '+groupPct(group,'actual').toFixed(1)+'%)</span>'+
+   '</th></tr>';
+  if(isCollapsed)return;
+  visibleTasks+=tasks.length;
   for(const task of tasks){
    rows+='<tr>'+paperTaskCell(task)+
     '<td class="print-col-owner"><span class="weekly-print-owner-text">'+escapeHTML(task.owner||'—')+'</span></td>'+
@@ -374,9 +384,9 @@ function printSheet(installment,pageNo,pageCount){
     '%<br>จริง '+clamp(task.actual).toFixed(0)+'%</span></td>'+
     weeks.map((week,j)=>paintWeek(task,week,j)).join('')+'</tr>';
   }
- }
+ });
  if(!rows)rows='<tr><td colspan="'+(weeks.length+3)+'">ยังไม่มีรายการงานย่อย</td></tr>';
- return '<section class="weekly-print-sheet" '+printLayout(stage,weeks.length)+'>'+
+ return '<section class="weekly-print-sheet" '+printLayout(stage,weeks.length,installment)+'>'+
   '<div class="weekly-print-top"><div class="weekly-print-identity">'+
   '<span class="weekly-print-logo" aria-label="ตราสัญลักษณ์บริษัท ศรพญาหิรัญ">'+PRINT_LOGO_SVG+'</span>'+
   '<div><strong>บริษัท ศรพญาหิรัญ จำกัด</strong>'+
@@ -390,7 +400,8 @@ function printSheet(installment,pageNo,pageCount){
   '<div class="weekly-print-metrics">'+
    '<span>แผน <strong>'+stagePlanned.toFixed(1)+'%</strong></span>'+
    '<span>งานจริง <strong>'+stageReal.toFixed(1)+'%</strong></span>'+
-   '<span>งานย่อย <strong>'+counts(stage).total+' รายการ</strong></span>'+
+   '<span>แสดงงาน <strong>'+visibleTasks+'/'+counts(stage).total+' รายการ</strong></span>'+
+   '<span>ย่อหมวด <strong>'+closed.size+' หมวด</strong></span>'+
    '<span>สถานะ <strong>'+escapeHTML(linkedLabel)+'</strong></span>'+
   '</div>'+
   '<table class="weekly-print-table" aria-label="แผนงานย่อยทั้งงวดที่ '+(installment+1)+'">'+
@@ -398,7 +409,7 @@ function printSheet(installment,pageNo,pageCount){
     weeks.map(()=>'<col class="weekly-print-week">').join('')+'</colgroup>'+
    header+'<tbody>'+rows+'</tbody></table>'+
   '<p class="weekly-print-foot">วันที่จัดพิมพ์ '+printCreatedAt()+' · อ้างอิงเอกสารแบ่งงวด หน้า '+D.installments[installment].page+
-   ' · ตารางครบทั้งงวดแสดงรายสัปดาห์โดยไม่ตัดเป็นช่วง · เอกสารก่อนใช้งานจริงควรผ่านการตรวจสอบแผน</p></section>';
+   ' · พิมพ์ตามสถานะย่อ/ขยายหมวดงานบนเว็บไซต์ · ตารางรายสัปดาห์ไม่ตัดเป็นช่วง · โปรดตรวจสอบก่อนใช้งานจริง</p></section>';
 }
 function buildPrintSheets(){
  updatePaperInfo();
@@ -562,7 +573,7 @@ $('weeklyCloseEditor').addEventListener('click',closeEditor);
 $('weeklyBackdrop').addEventListener('click',e=>{if(e.target===$('weeklyBackdrop'))closeEditor()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeEditor()});
 window.addEventListener('beforeprint',buildPrintSheets);
-window.addEventListener('afterprint',()=>{printExpanded=false});
+window.addEventListener('afterprint',()=>{});
 window.addEventListener('popstate',()=>{
  const n=Number(new URLSearchParams(location.search).get('stage'))-1;
  if(Number.isInteger(n)&&n>=0&&n<13){stageIndex=n;closeEditor();render()}
