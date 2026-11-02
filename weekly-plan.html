@@ -69,10 +69,15 @@
               </select>
             </label>
           </div>
+          <div class="weekly-print-range" role="group" aria-label="เลือกช่วงงวดที่จะพิมพ์ต่อเนื่อง">
+            <label for="weeklyPrintFrom">จากงวดที่ <select id="weeklyPrintFrom" aria-label="เริ่มพิมพ์ตั้งแต่งวดที่"></select></label>
+            <label for="weeklyPrintTo">ถึงงวดที่ <select id="weeklyPrintTo" aria-label="พิมพ์ถึงงวดที่"></select></label>
+            <button type="button" id="weeklyPrintAll" title="เลือกพิมพ์งวดที่ 1 ถึงงวดที่ 13" class="weekly-range-all">เลือกทั้ง 13 งวด</button>
+          </div>
           <button type="button" id="weeklyPrint">⎙ พิมพ์ / บันทึก PDF</button>
         </div>
       </div>
-      <p id="weeklyPrintInfo" class="weekly-print-info" aria-live="polite">A3 แนวนอน · ระบบแบ่งตารางตามช่วงสัปดาห์ให้อ่านง่ายเมื่อพิมพ์</p>
+      <p id="weeklyPrintInfo" class="weekly-print-info" aria-live="polite">หนึ่งงวดต่อหนึ่งหน้า · เลือกงวดเริ่มต้นและสิ้นสุดเพื่อพิมพ์ต่อกันเป็น PDF ไฟล์เดียว</p>
       <div class="weekly-legend">
         <span><i class="weekly-legend-plan"></i> ช่วงงานที่กำหนดวันที่แล้ว</span>
         <span><i class="weekly-legend-actual"></i> ผลงานจริงสะสมตาม %</span>
