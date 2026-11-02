@@ -334,7 +334,7 @@ function printWeekYearLabel(first,last){
  if(!first||!last)return '';
  const a=String(first.getUTCFullYear()+543).slice(-2);
  const b=String(last.getUTCFullYear()+543).slice(-2);
- return a===b?'พ.ศ. '+a:'พ.ศ. '+a+'–'+b;
+ return a===b?a:a+'–'+b;
 }
 // Embed the existing company-mark SVG in each print page to avoid a missing logo.png
 // or a delayed image request when Chrome opens Print/Save as PDF.
