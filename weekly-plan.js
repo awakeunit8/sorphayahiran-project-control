@@ -277,9 +277,9 @@ function updatePaperInfo(){
  const weeks=weeksFor(stageIndex);
  const hasManyWeeks=range.from===range.to?weeks.length>=15:Array.from({length:count},(_,i)=>weeksFor(range.from+i-1).length).some(n=>n>=15);
  $('weeklyPrintInfo').textContent=
-  'หนึ่งงวดต่อหนึ่งหน้า · งวดที่ '+range.from+(count>1?' ถึง '+range.to:'')+
-  ' รวม '+count+' หน้าใน PDF ไฟล์เดียว · '+paperPrefs.size+' '+paperOrientationLabel()+
-  (hasManyWeeks&&paperPrefs.size==='A4'?' · ตารางรายสัปดาห์อาจมีตัวอักษรเล็ก แนะนำ A3 หรือ A2':'');
+  'พิมพ์ตามสถานะเปิด/ย่อหมวดงานที่เห็นบนหน้าจอ · งวดที่ '+range.from+(count>1?' ถึง '+range.to:'')+
+  ' รวม '+count+' หน้าใน PDF ไฟล์เดียว (งวดละหนึ่งหน้า) · '+paperPrefs.size+' '+paperOrientationLabel()+
+  (hasManyWeeks&&paperPrefs.size==='A4'?' · สัปดาห์จำนวนมากควรใช้ A3 หรือ A2 เพื่ออ่านง่าย':'');
 }
 function paperOptionChanged(){
  paperPrefs.size=PAPER_FORMATS[$('weeklyPaperSize').value]?$('weeklyPaperSize').value:'A3';
@@ -381,7 +381,8 @@ function printSheet(installment,pageNo,pageCount){
    rows+='<tr>'+paperTaskCell(task)+
     '<td class="print-col-owner"><span class="weekly-print-owner-text">'+escapeHTML(task.owner||'—')+'</span></td>'+
     '<td class="print-col-progress"><span class="weekly-print-progress-text">แผน '+clamp(task.planned).toFixed(0)+
-    '%<br>จริง '+clamp(task.actual).toFixed(0)+'%</span></td>'+
+    '%<br>จริง '+clamp(task.actual).toFixed(0)+'%</span>'+
+    '<span class="weekly-print-progress-bar"><i style="width:'+clamp(task.actual)+'%"></i></span></td>'+
     weeks.map((week,j)=>paintWeek(task,week,j)).join('')+'</tr>';
   }
  });
@@ -573,7 +574,7 @@ $('weeklyCloseEditor').addEventListener('click',closeEditor);
 $('weeklyBackdrop').addEventListener('click',e=>{if(e.target===$('weeklyBackdrop'))closeEditor()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeEditor()});
 window.addEventListener('beforeprint',buildPrintSheets);
-window.addEventListener('afterprint',()=>{});
+// Printing uses a separate report DOM, so it never alters the open/closed state of the on-screen table.
 window.addEventListener('popstate',()=>{
  const n=Number(new URLSearchParams(location.search).get('stage'))-1;
  if(Number.isInteger(n)&&n>=0&&n<13){stageIndex=n;closeEditor();render()}
