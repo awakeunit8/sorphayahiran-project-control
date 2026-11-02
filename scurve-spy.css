@@ -160,6 +160,13 @@ body.spy-scurve-admin .spy-sensitive,body.spy-scurve-admin .spy-price,body.spy-s
   font-size:7px!important;white-space:nowrap!important;
   overflow:hidden!important;padding:1px 0!important}
  #schedule tfoot .monthly-total th{font-size:6.7px!important}
+ /* Exact equal-width month boxes: no padded cell width to skew 30x overlay. */
+ #schedule tbody td:nth-child(n+4),
+ #schedule thead th:nth-child(n+4),
+ #schedule tfoot th:nth-child(n+4){
+  padding-left:0!important;
+  padding-right:0!important;
+ }
  #schedule .scurve-print-anchor{position:relative!important;overflow:visible!important}
  #schedule .scurve-print-curve{
   display:block!important;
