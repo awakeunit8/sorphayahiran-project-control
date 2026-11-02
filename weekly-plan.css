@@ -386,3 +386,43 @@ button.weekly-primary{background:#176fae;border-color:#176fae;color:white}
   letter-spacing:-0.22pt!important;
  }
 }
+
+
+/* PRINT PARITY: visible rows, collapsed category headers, and progress cues now
+   match the weekly-plan table the user sees before choosing Print/Save PDF. */
+@media print{
+ .weekly-print-table .weekly-print-group th{
+  background:#e5f2fd!important;
+  color:#27618d!important;
+  font-weight:800!important;
+  text-align:left!important;
+  padding-left:2mm!important;
+ }
+ .weekly-print-table .weekly-print-group-closed th{
+  background:#e5f2fd!important;
+  color:#2f6f9d!important;
+ }
+ .weekly-print-group-arrow{display:inline-block;font-weight:900;color:#266a97;min-width:3mm}
+ .weekly-print-group-info{font-size:calc(var(--weekly-print-task-font,8pt)*.83);
+  font-weight:500;color:#6c91ac!important}
+ .weekly-print-progress-bar{
+  display:block!important;
+  width:92%;
+  height:1.2mm;
+  overflow:hidden;
+  margin:1mm auto 0;
+  border-radius:2mm;
+  background:#e9f0f6!important
+ }
+ .weekly-print-progress-bar i{
+  display:block!important;height:100%!important;background:#22a785!important
+ }
+ .weekly-print-work-title{color:#285579!important}
+ .weekly-print-table .weekly-current-week{background:#fff9e5!important}
+ .weekly-print-table tbody tr:not(.weekly-print-group) td{
+  background:#fff!important;
+ }
+ .weekly-print-table tbody tr:not(.weekly-print-group) td.weekly-current-week{
+  background:#fff9e5!important;
+ }
+}
