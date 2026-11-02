@@ -244,6 +244,113 @@ function publishToMaster(){
  renderLinkStatus();
  $('weeklyNotice').textContent='✅ เชื่อมแผนย่อยงวดที่ '+(stageIndex+1)+' กับแผนใหญ่แล้ว สามารถกด S-Curve แผนใหญ่เพื่อตรวจสถานะได้';
 }
+
+/* Print options are independent from scheduling data and the S-Curve. The print
+   report splits long weekly timelines into readable slices of the selected page. */
+const PAPER_FORMATS=Object.freeze({
+ A4:{landscape:8,portrait:5,margin:7},
+ A3:{landscape:13,portrait:9,margin:9},
+ A2:{landscape:20,portrait:14,margin:12},
+ A1:{landscape:29,portrait:21,margin:14}
+});
+const PAPER_KEY='spy_weekly_print_paper_v1';
+function readPaperPrefs(){
+ const saved=storage(PAPER_KEY,{size:'A3',orientation:'landscape'});
+ return {size:PAPER_FORMATS[saved?.size]?saved.size:'A3',
+  orientation:['portrait','landscape'].includes(saved?.orientation)?saved.orientation:'landscape'};
+}
+let paperPrefs=readPaperPrefs();
+const paperOrientationLabel=()=>paperPrefs.orientation==='landscape'?'แนวนอน':'แนวตั้ง';
+function paperSegments(){
+ const weeks=weeksFor(stageIndex);
+ const capacity=PAPER_FORMATS[paperPrefs.size][paperPrefs.orientation];
+ const pageCount=Math.max(1,Math.ceil(weeks.length/capacity));
+ const perPage=Math.ceil(weeks.length/pageCount);
+ const parts=[];
+ for(let i=0;i<weeks.length;i+=perPage)parts.push({weeks:weeks.slice(i,i+perPage),offset:i});
+ return parts;
+}
+function updatePaperInfo(){
+ const fmt=PAPER_FORMATS[paperPrefs.size],margin=fmt.margin;
+ const rule=$('weeklyPrintPageSettings');
+ if(rule)rule.textContent='@page{size:'+paperPrefs.size+' '+paperPrefs.orientation+';margin:'+margin+'mm;}';
+ document.documentElement.dataset.paperSize=paperPrefs.size;
+ document.documentElement.dataset.paperOrientation=paperPrefs.orientation;
+ const parts=paperSegments(),weeks=weeksFor(stageIndex);
+ const message=paperPrefs.size+' '+paperOrientationLabel()+' · '+weeks.length+' สัปดาห์ · แบ่งช่วงเป็น '+parts.length+
+  ' ส่วน (ประมาณ '+Math.ceil(weeks.length/parts.length)+' สัปดาห์/ส่วน) เพื่อให้อ่านง่ายเมื่อพิมพ์';
+ $('weeklyPrintInfo').textContent=message;
+}
+function paperOptionChanged(){
+ paperPrefs.size=PAPER_FORMATS[$('weeklyPaperSize').value]?$('weeklyPaperSize').value:'A3';
+ paperPrefs.orientation=['landscape','portrait'].includes($('weeklyPaperOrientation').value)?$('weeklyPaperOrientation').value:'landscape';
+ save(PAPER_KEY,paperPrefs);
+ updatePaperInfo();
+}
+function paperTaskCell(task){
+ const start=byDate(task.start),end=byDate(task.end);
+ const scheduled=!!start&&!!end&&start<=end;
+ return '<td class="print-col-task">'+
+  '<div class="weekly-print-work-title">'+escapeHTML(task.name)+'</div>'+
+  '<span class="weekly-print-task-details">'+(scheduled?escapeHTML(compactDate(start)+' – '+compactDate(end)):'ยังไม่ระบุวันเริ่ม–เสร็จ')+
+  ' · '+escapeHTML(task.status||'ยังไม่เริ่ม')+'</span></td>';
+}
+function printSheet(part,index,partCount,allWeeks){
+ const stage=stages[stageIndex],bounds=stageBounds(stageIndex);
+ const startWeek=part.offset+1,endWeek=part.offset+part.weeks.length;
+ const stageReal=stagePct(stage,'actual'),stagePlanned=stagePct(stage,'planned');
+ const linkedInfo=window.SPY_STAGE_LINK?.status(stageIndex,stage);
+ const linkedLabel=linkedInfo?.linked?'เชื่อมกับแผนใหญ่แล้ว':linkedInfo?.outdated?'แผนมีการแก้ไข รอยืนยันเชื่อมใหม่':'รอเชื่อมกับแผนใหญ่';
+ const header='<thead><tr><th class="print-col-task">หมวด / งานย่อย</th>'+
+  '<th class="print-col-owner">ผู้รับผิดชอบ</th>'+
+  '<th class="print-col-progress">แผน / จริง</th>'+
+  part.weeks.map((week,j)=>'<th class="weekly-print-week'+(currentWeek(week)?' weekly-now':'')+'">สัปดาห์ '+(part.offset+j+1)+
+   '<span>'+escapeHTML(compactDate(week.start))+' – '+escapeHTML(compactDate(week.end))+'</span></th>').join('')+
+  '</tr></thead>';
+ let rows='';
+ for(const group of stage.groups||[]){
+  const tasks=group.tasks||[];
+  rows+='<tr class="weekly-print-group"><th colspan="'+(part.weeks.length+3)+'">'+escapeHTML(group.name)+
+   ' · '+tasks.length+' งานย่อย</th></tr>';
+  for(const task of tasks){
+   rows+='<tr>'+paperTaskCell(task)+
+    '<td class="print-col-owner"><span class="weekly-print-owner-text">'+escapeHTML(task.owner||'—')+'</span></td>'+
+    '<td class="print-col-progress"><span class="weekly-print-progress-text">แผน '+clamp(task.planned).toFixed(0)+
+    '% / จริง '+clamp(task.actual).toFixed(0)+'%</span></td>'+
+    part.weeks.map((week,j)=>paintWeek(task,week,j)).join('')+
+    '</tr>';
+  }
+ }
+ if(!rows)rows='<tr><td colspan="'+(part.weeks.length+3)+'">ยังไม่มีรายการงานย่อย</td></tr>';
+ return '<section class="weekly-print-sheet">'+
+  '<div class="weekly-print-top"><div class="weekly-print-identity">'+
+  '<img src="logo.png" alt="ตราบริษัท" onerror="this.onerror=null;this.src=\'spy-mark.svg\'">'+
+  '<div><strong>บริษัท ศรพญาหิรัญ จำกัด</strong>'+
+  '<p>โครงการก่อสร้างอาคารเรียนและปฏิบัติการเอนกประสงค์ · มทร.ล้านนา ดอยสะเก็ด</p></div></div>'+
+  '<span class="weekly-print-page-number">'+paperPrefs.size+' '+paperOrientationLabel()+' · ช่วงที่ '+(index+1)+'/'+partCount+'</span></div>'+
+  '<div class="weekly-print-title"><h2>แผนงานย่อยรายสัปดาห์ · งวดที่ '+(stageIndex+1)+'</h2>'+
+  '<p>ช่วงงวด '+escapeHTML(thaiDate(bounds.start))+' ถึง '+escapeHTML(thaiDate(bounds.end))+
+  ' · ช่วงสัปดาห์ที่ '+startWeek+'–'+endWeek+' จาก '+allWeeks+' สัปดาห์</p></div>'+
+  '<div class="weekly-print-metrics">'+
+   '<span>แผนสะสม <strong>'+stagePlanned.toFixed(1)+'%</strong></span>'+
+   '<span>งานจริง <strong>'+stageReal.toFixed(1)+'%</strong></span>'+
+   '<span>งานย่อย <strong>'+counts(stage).total+' รายการ</strong></span>'+
+   '<span>สถานะ <strong>'+escapeHTML(linkedLabel)+'</strong></span>'+
+  '</div>'+
+  '<table class="weekly-print-table" aria-label="แผนงานย่อยรายสัปดาห์ ช่วงที่ '+(index+1)+'">'+
+   '<colgroup><col class="print-col-task"><col class="print-col-owner"><col class="print-col-progress">'+
+   part.weeks.map(()=>'<col class="weekly-print-week">').join('')+'</colgroup>'+
+   header+'<tbody>'+rows+'</tbody></table>'+
+  '<p class="weekly-print-foot">อ้างอิงรายละเอียดงวดงาน หน้า '+D.installments[stageIndex].page+
+   ' · ช่วงเวลาเป็นรายสัปดาห์ (7 วัน) · แผนงานย่อยที่ยังไม่มีวันที่จะไม่แสดงแถบเวลา · '+
+   'โปรดตรวจสอบและลงนามรับรองก่อนใช้เป็นเอกสารส่งหน่วยงาน</p></section>';
+}
+function buildPrintSheets(){
+ updatePaperInfo();
+ const parts=paperSegments(),weeks=weeksFor(stageIndex);
+ $('weeklyPrintSheets').innerHTML=parts.map((part,i)=>printSheet(part,i,parts.length,weeks.length)).join('');
+}
+
 function render(){
  const stage=stages[stageIndex],weeks=weeksFor(stageIndex);
  $('weeklyStageTitle').textContent=stageIndex+1;
@@ -253,7 +360,7 @@ function render(){
  $('weeklyBack').href=back;
  $('weeklyBackBottom').href=back;
  document.title='งวดที่ '+(stageIndex+1)+' · แผนงานรายสัปดาห์ · ศรพญาหิรัญ';
- renderStats(weeks);renderTable(weeks);renderLinkStatus();
+ renderStats(weeks);renderTable(weeks);renderLinkStatus();updatePaperInfo();
 }
 function goToStage(value){
  const i=Number(value)-1;if(!Number.isInteger(i)||i<0||i>=13)return;
@@ -365,7 +472,11 @@ $('weeklyNext').addEventListener('click',()=>goToStage(stageIndex+2));
 $('weeklyExpand').addEventListener('click',()=>{persistCollapsed(new Set());renderTable(weeksFor(stageIndex))});
 $('weeklyCollapse').addEventListener('click',()=>{persistCollapsed(new Set(stages[stageIndex].groups.map((_,i)=>i)));renderTable(weeksFor(stageIndex))});
 $('weeklyPublish').addEventListener('click',publishToMaster);
-$('weeklyPrint').addEventListener('click',()=>window.print());
+$('weeklyPaperSize').value=paperPrefs.size;
+$('weeklyPaperOrientation').value=paperPrefs.orientation;
+$('weeklyPaperSize').addEventListener('change',paperOptionChanged);
+$('weeklyPaperOrientation').addEventListener('change',paperOptionChanged);
+$('weeklyPrint').addEventListener('click',()=>{buildPrintSheets();window.print()});
 $('weeklyAddGroup').addEventListener('click',addGroup);
 $('weeklyEditForm').addEventListener('submit',saveTask);
 $('weeklyDeleteTask').addEventListener('click',removeTask);
@@ -373,8 +484,8 @@ $('weeklyTaskDocs').addEventListener('click',goDocuments);
 $('weeklyCloseEditor').addEventListener('click',closeEditor);
 $('weeklyBackdrop').addEventListener('click',e=>{if(e.target===$('weeklyBackdrop'))closeEditor()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeEditor()});
-window.addEventListener('beforeprint',()=>{printExpanded=true;renderTable(weeksFor(stageIndex))});
-window.addEventListener('afterprint',()=>{printExpanded=false;renderTable(weeksFor(stageIndex))});
+window.addEventListener('beforeprint',buildPrintSheets);
+window.addEventListener('afterprint',()=>{printExpanded=false});
 window.addEventListener('popstate',()=>{
  const n=Number(new URLSearchParams(location.search).get('stage'))-1;
  if(Number.isInteger(n)&&n>=0&&n<13){stageIndex=n;closeEditor();render()}
