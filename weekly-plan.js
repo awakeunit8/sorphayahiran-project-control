@@ -248,10 +248,10 @@ function publishToMaster(){
 /* Print options are independent from scheduling data and the S-Curve. The print
    report splits long weekly timelines into readable slices of the selected page. */
 const PAPER_FORMATS=Object.freeze({
- A4:{landscape:8,portrait:5,margin:7},
- A3:{landscape:13,portrait:9,margin:9},
- A2:{landscape:20,portrait:14,margin:12},
- A1:{landscape:29,portrait:21,margin:14}
+ A4:{width:210,height:297,margin:7},
+ A3:{width:297,height:420,margin:9},
+ A2:{width:420,height:594,margin:12},
+ A1:{width:594,height:841,margin:14}
 });
 const PAPER_KEY='spy_weekly_print_paper_v1';
 function readPaperPrefs(){
@@ -261,14 +261,10 @@ function readPaperPrefs(){
 }
 let paperPrefs=readPaperPrefs();
 const paperOrientationLabel=()=>paperPrefs.orientation==='landscape'?'แนวนอน':'แนวตั้ง';
-function paperSegments(){
- const weeks=weeksFor(stageIndex);
- const capacity=PAPER_FORMATS[paperPrefs.size][paperPrefs.orientation];
- const pageCount=Math.max(1,Math.ceil(weeks.length/capacity));
- const perPage=Math.ceil(weeks.length/pageCount);
- const parts=[];
- for(let i=0;i<weeks.length;i+=perPage)parts.push({weeks:weeks.slice(i,i+perPage),offset:i});
- return parts;
+function printRange(){
+ const from=Math.max(1,Math.min(13,Number($('weeklyPrintFrom')?.value)||stageIndex+1));
+ const to=Math.max(1,Math.min(13,Number($('weeklyPrintTo')?.value)||stageIndex+1));
+ return {from:Math.min(from,to),to:Math.max(from,to)};
 }
 function updatePaperInfo(){
  const fmt=PAPER_FORMATS[paperPrefs.size],margin=fmt.margin;
@@ -276,16 +272,51 @@ function updatePaperInfo(){
  if(rule)rule.textContent='@page{size:'+paperPrefs.size+' '+paperPrefs.orientation+';margin:'+margin+'mm;}';
  document.documentElement.dataset.paperSize=paperPrefs.size;
  document.documentElement.dataset.paperOrientation=paperPrefs.orientation;
- const parts=paperSegments(),weeks=weeksFor(stageIndex);
- const message=paperPrefs.size+' '+paperOrientationLabel()+' · '+weeks.length+' สัปดาห์ · แบ่งช่วงเป็น '+parts.length+
-  ' ส่วน (ประมาณ '+Math.ceil(weeks.length/parts.length)+' สัปดาห์/ส่วน) เพื่อให้อ่านง่ายเมื่อพิมพ์';
- $('weeklyPrintInfo').textContent=message;
+ const range=printRange(),count=range.to-range.from+1;
+ const weeks=weeksFor(stageIndex);
+ const hasManyWeeks=range.from===range.to?weeks.length>=15:Array.from({length:count},(_,i)=>weeksFor(range.from+i-1).length).some(n=>n>=15);
+ $('weeklyPrintInfo').textContent=
+  'หนึ่งงวดต่อหนึ่งหน้า · งวดที่ '+range.from+(count>1?' ถึง '+range.to:'')+
+  ' รวม '+count+' หน้าใน PDF ไฟล์เดียว · '+paperPrefs.size+' '+paperOrientationLabel()+
+  (hasManyWeeks&&paperPrefs.size==='A4'?' · ตารางรายสัปดาห์อาจมีตัวอักษรเล็ก แนะนำ A3 หรือ A2':'');
 }
 function paperOptionChanged(){
  paperPrefs.size=PAPER_FORMATS[$('weeklyPaperSize').value]?$('weeklyPaperSize').value:'A3';
  paperPrefs.orientation=['landscape','portrait'].includes($('weeklyPaperOrientation').value)?$('weeklyPaperOrientation').value:'landscape';
  save(PAPER_KEY,paperPrefs);
  updatePaperInfo();
+}
+function printWidthHeight(){
+ const format=PAPER_FORMATS[paperPrefs.size];
+ const landscape=paperPrefs.orientation==='landscape';
+ return {
+  width:(landscape?format.height:format.width)-2*format.margin,
+  height:(landscape?format.width:format.height)-2*format.margin
+ };
+}
+function printLayout(stage,weekCount){
+ const size=printWidthHeight(),groups=(stage?.groups||[]).length;
+ const tasks=(stage?.groups||[]).reduce((sum,g)=>sum+(g.tasks||[]).length,0);
+ // Keep complete installment rows on one sheet: compress spacing when necessary
+ // instead of slicing weeks across multiple sheets.
+ const availableRowSpace=Math.max(40,size.height-50);
+ const row= Math.max(2.4,Math.min(paperPrefs.size==='A4'?7.2:8.6,
+  availableRowSpace/Math.max(1,tasks+groups*0.87+1.5)));
+ const groupHeight=Math.max(2.1,row*0.84);
+ const compact=paperPrefs.size==='A4'||weekCount>18;
+ const small=weekCount>=18;
+ const taskFont=(paperPrefs.size==='A1'?10.6:paperPrefs.size==='A2'?9.3:paperPrefs.size==='A3'?8.4:7.6)*
+  (row<4.5?.75:row<6?.87:1);
+ const weekFont=(size.width*0.52/weekCount<6.5?5:small?6:paperPrefs.size==='A4'?6.2:7.2);
+ return 'style="--weekly-print-row:'+row.toFixed(2)+'mm;'+
+  '--weekly-print-group:'+groupHeight.toFixed(2)+'mm;'+
+  '--weekly-print-task-font:'+taskFont.toFixed(2)+'pt;'+
+  '--weekly-print-week-font:'+weekFont.toFixed(2)+'pt;'+
+  '--weekly-print-date-font:'+(compact?5.3:6.5)+'pt;"';
+}
+function printWeekDate(date){
+ if(!date)return '';
+ return String(date.getUTCDate()).padStart(2,'0')+'/'+String(date.getUTCMonth()+1).padStart(2,'0');
 }
 function paperTaskCell(task){
  const start=byDate(task.start),end=byDate(task.end);
@@ -295,60 +326,60 @@ function paperTaskCell(task){
   '<span class="weekly-print-task-details">'+(scheduled?escapeHTML(compactDate(start)+' – '+compactDate(end)):'ยังไม่ระบุวันเริ่ม–เสร็จ')+
   ' · '+escapeHTML(task.status||'ยังไม่เริ่ม')+'</span></td>';
 }
-function printSheet(part,index,partCount,allWeeks){
- const stage=stages[stageIndex],bounds=stageBounds(stageIndex);
- const startWeek=part.offset+1,endWeek=part.offset+part.weeks.length;
+function printSheet(installment,pageNo,pageCount){
+ const stage=stages[installment],bounds=stageBounds(installment),weeks=weeksFor(installment);
  const stageReal=stagePct(stage,'actual'),stagePlanned=stagePct(stage,'planned');
- const linkedInfo=window.SPY_STAGE_LINK?.status(stageIndex,stage);
- const linkedLabel=linkedInfo?.linked?'เชื่อมกับแผนใหญ่แล้ว':linkedInfo?.outdated?'แผนมีการแก้ไข รอยืนยันเชื่อมใหม่':'รอเชื่อมกับแผนใหญ่';
+ const linkedInfo=window.SPY_STAGE_LINK?.status(installment,stage);
+ const linkedLabel=linkedInfo?.linked?'เชื่อมแผนใหญ่แล้ว':linkedInfo?.outdated?'มีการแก้ไข รอเชื่อมใหม่':'ยังไม่เชื่อมแผนใหญ่';
  const header='<thead><tr><th class="print-col-task">หมวด / งานย่อย</th>'+
   '<th class="print-col-owner">ผู้รับผิดชอบ</th>'+
   '<th class="print-col-progress">แผน / จริง</th>'+
-  part.weeks.map((week,j)=>'<th class="weekly-print-week'+(currentWeek(week)?' weekly-now':'')+'">สัปดาห์ '+(part.offset+j+1)+
-   '<span>'+escapeHTML(compactDate(week.start))+' – '+escapeHTML(compactDate(week.end))+'</span></th>').join('')+
+  weeks.map((week,j)=>'<th class="weekly-print-week'+(currentWeek(week)?' weekly-now':'')+'" title="สัปดาห์ '+(j+1)+'">'+
+   'ส.'+(j+1)+'<span>'+printWeekDate(week.start)+'</span></th>').join('')+
   '</tr></thead>';
  let rows='';
  for(const group of stage.groups||[]){
   const tasks=group.tasks||[];
-  rows+='<tr class="weekly-print-group"><th colspan="'+(part.weeks.length+3)+'">'+escapeHTML(group.name)+
+  rows+='<tr class="weekly-print-group"><th colspan="'+(weeks.length+3)+'">'+escapeHTML(group.name)+
    ' · '+tasks.length+' งานย่อย</th></tr>';
   for(const task of tasks){
    rows+='<tr>'+paperTaskCell(task)+
     '<td class="print-col-owner"><span class="weekly-print-owner-text">'+escapeHTML(task.owner||'—')+'</span></td>'+
     '<td class="print-col-progress"><span class="weekly-print-progress-text">แผน '+clamp(task.planned).toFixed(0)+
-    '% / จริง '+clamp(task.actual).toFixed(0)+'%</span></td>'+
-    part.weeks.map((week,j)=>paintWeek(task,week,j)).join('')+
-    '</tr>';
+    '%<br>จริง '+clamp(task.actual).toFixed(0)+'%</span></td>'+
+    weeks.map((week,j)=>paintWeek(task,week,j)).join('')+'</tr>';
   }
  }
- if(!rows)rows='<tr><td colspan="'+(part.weeks.length+3)+'">ยังไม่มีรายการงานย่อย</td></tr>';
- return '<section class="weekly-print-sheet">'+
+ if(!rows)rows='<tr><td colspan="'+(weeks.length+3)+'">ยังไม่มีรายการงานย่อย</td></tr>';
+ return '<section class="weekly-print-sheet" '+printLayout(stage,weeks.length)+'>'+
   '<div class="weekly-print-top"><div class="weekly-print-identity">'+
   '<img src="logo.png" alt="ตราบริษัท" onerror="this.onerror=null;this.src=\'spy-mark.svg\'">'+
   '<div><strong>บริษัท ศรพญาหิรัญ จำกัด</strong>'+
-  '<p>โครงการก่อสร้างอาคารเรียนและปฏิบัติการเอนกประสงค์ · มทร.ล้านนา ดอยสะเก็ด</p></div></div>'+
-  '<span class="weekly-print-page-number">'+paperPrefs.size+' '+paperOrientationLabel()+' · ช่วงที่ '+(index+1)+'/'+partCount+'</span></div>'+
-  '<div class="weekly-print-title"><h2>แผนงานย่อยรายสัปดาห์ · งวดที่ '+(stageIndex+1)+'</h2>'+
-  '<p>ช่วงงวด '+escapeHTML(thaiDate(bounds.start))+' ถึง '+escapeHTML(thaiDate(bounds.end))+
-  ' · ช่วงสัปดาห์ที่ '+startWeek+'–'+endWeek+' จาก '+allWeeks+' สัปดาห์</p></div>'+
+  '<p>โครงการอาคารเรียนและปฏิบัติการเอนกประสงค์ · มทร.ล้านนา ดอยสะเก็ด</p></div></div>'+
+  '<span class="weekly-print-page-number">'+paperPrefs.size+' '+paperOrientationLabel()+
+    ' · หน้าที่ '+pageNo+'/'+pageCount+'</span></div>'+
+  '<div class="weekly-print-title"><h2>แผนงานย่อยรายสัปดาห์ · งวดที่ '+(installment+1)+'</h2>'+
+  '<p>กำหนดงวด '+escapeHTML(thaiDate(bounds.start))+' – '+escapeHTML(thaiDate(bounds.end))+
+  ' · ครบทั้ง '+weeks.length+' สัปดาห์ในหน้าเดียว</p></div>'+
   '<div class="weekly-print-metrics">'+
-   '<span>แผนสะสม <strong>'+stagePlanned.toFixed(1)+'%</strong></span>'+
+   '<span>แผน <strong>'+stagePlanned.toFixed(1)+'%</strong></span>'+
    '<span>งานจริง <strong>'+stageReal.toFixed(1)+'%</strong></span>'+
    '<span>งานย่อย <strong>'+counts(stage).total+' รายการ</strong></span>'+
    '<span>สถานะ <strong>'+escapeHTML(linkedLabel)+'</strong></span>'+
   '</div>'+
-  '<table class="weekly-print-table" aria-label="แผนงานย่อยรายสัปดาห์ ช่วงที่ '+(index+1)+'">'+
+  '<table class="weekly-print-table" aria-label="แผนงานย่อยทั้งงวดที่ '+(installment+1)+'">'+
    '<colgroup><col class="print-col-task"><col class="print-col-owner"><col class="print-col-progress">'+
-   part.weeks.map(()=>'<col class="weekly-print-week">').join('')+'</colgroup>'+
+    weeks.map(()=>'<col class="weekly-print-week">').join('')+'</colgroup>'+
    header+'<tbody>'+rows+'</tbody></table>'+
-  '<p class="weekly-print-foot">อ้างอิงรายละเอียดงวดงาน หน้า '+D.installments[stageIndex].page+
-   ' · ช่วงเวลาเป็นรายสัปดาห์ (7 วัน) · แผนงานย่อยที่ยังไม่มีวันที่จะไม่แสดงแถบเวลา · '+
-   'โปรดตรวจสอบและลงนามรับรองก่อนใช้เป็นเอกสารส่งหน่วยงาน</p></section>';
+  '<p class="weekly-print-foot">อ้างอิงเอกสารแบ่งงวด หน้า '+D.installments[installment].page+
+   ' · ตารางครบทั้งงวดแสดงรายสัปดาห์โดยไม่ตัดเป็นช่วง · เอกสารก่อนใช้งานจริงควรผ่านการตรวจสอบแผน</p></section>';
 }
 function buildPrintSheets(){
  updatePaperInfo();
- const parts=paperSegments(),weeks=weeksFor(stageIndex);
- $('weeklyPrintSheets').innerHTML=parts.map((part,i)=>printSheet(part,i,parts.length,weeks.length)).join('');
+ const range=printRange(),count=range.to-range.from+1,html=[];
+ for(let installment=range.from-1;installment<=range.to-1;installment++)
+  html.push(printSheet(installment,html.length+1,count));
+ $('weeklyPrintSheets').innerHTML=html.join('');
 }
 
 function render(){
@@ -365,6 +396,8 @@ function render(){
 function goToStage(value){
  const i=Number(value)-1;if(!Number.isInteger(i)||i<0||i>=13)return;
  stageIndex=i;selected=null;closeEditor();
+ $('weeklyPrintFrom').value=String(i+1);
+ $('weeklyPrintTo').value=String(i+1);
  const url=new URL(location.href);url.searchParams.set('stage',String(i+1));history.pushState({},'',url);
  render();$('weeklyScroll').scrollLeft=0;window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -472,6 +505,24 @@ $('weeklyNext').addEventListener('click',()=>goToStage(stageIndex+2));
 $('weeklyExpand').addEventListener('click',()=>{persistCollapsed(new Set());renderTable(weeksFor(stageIndex))});
 $('weeklyCollapse').addEventListener('click',()=>{persistCollapsed(new Set(stages[stageIndex].groups.map((_,i)=>i)));renderTable(weeksFor(stageIndex))});
 $('weeklyPublish').addEventListener('click',publishToMaster);
+const rangeOptions=Array.from({length:13},(_,i)=>'<option value="'+(i+1)+'">งวดที่ '+(i+1)+'</option>').join('');
+$('weeklyPrintFrom').innerHTML=rangeOptions;
+$('weeklyPrintTo').innerHTML=rangeOptions;
+$('weeklyPrintFrom').value=String(stageIndex+1);
+$('weeklyPrintTo').value=String(stageIndex+1);
+$('weeklyPrintFrom').addEventListener('change',()=>{
+ if(Number($('weeklyPrintFrom').value)>Number($('weeklyPrintTo').value))
+  $('weeklyPrintTo').value=$('weeklyPrintFrom').value;
+ updatePaperInfo();
+});
+$('weeklyPrintTo').addEventListener('change',()=>{
+ if(Number($('weeklyPrintTo').value)<Number($('weeklyPrintFrom').value))
+  $('weeklyPrintFrom').value=$('weeklyPrintTo').value;
+ updatePaperInfo();
+});
+$('weeklyPrintAll').addEventListener('click',()=>{
+ $('weeklyPrintFrom').value='1';$('weeklyPrintTo').value='13';updatePaperInfo();
+});
 $('weeklyPaperSize').value=paperPrefs.size;
 $('weeklyPaperOrientation').value=paperPrefs.orientation;
 $('weeklyPaperSize').addEventListener('change',paperOptionChanged);
