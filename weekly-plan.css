@@ -195,3 +195,79 @@ button.weekly-primary{background:#176fae;border-color:#176fae;color:white}
  html[data-paper-size="A1"] .weekly-print-table .weekly-print-group th{font-size:11pt}
  html[data-paper-size="A1"] .weekly-print-table .weekly-print-week{padding:1.25mm}
 }
+
+/* Print consecutive installments in one PDF, one complete installment per sheet. */
+.weekly-print-range{display:flex;flex-wrap:wrap;gap:6px;align-items:center;border:1px solid #d2e5f3;border-radius:10px;padding:5px 7px;background:#f5fbff}
+.weekly-print-range label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#416e8c;white-space:nowrap}
+.weekly-print-range select{min-width:94px;padding:7px 8px;border:1px solid #c2dced;border-radius:7px;background:#fff;color:#174e79;font-size:12px;font-weight:800;cursor:pointer}
+.weekly-print-range .weekly-range-all{border:1px solid #b9dcf3;background:#e7f3fd;color:#226896;padding:8px 10px;border-radius:7px;font-size:11px;font-weight:800}
+.weekly-print-range .weekly-range-all:hover{background:#d9edfc}
+@media print{
+ /* Print the full 7-day timeline per installment. No split into week segments. */
+ .weekly-print-sheet{page-break-inside:avoid;break-inside:avoid;overflow:visible;max-width:100%}
+ .weekly-print-table{width:100%!important;table-layout:fixed!important;border-collapse:collapse}
+ .weekly-print-table th,.weekly-print-table td{
+  height:var(--weekly-print-row,7mm)!important;
+  padding:0.45mm 0.5mm!important;
+  line-height:1.22!important;
+  box-sizing:border-box;
+  overflow-wrap:anywhere;
+ }
+ .weekly-print-table thead th{
+  height:6.2mm!important;
+  padding:0.25mm 0.35mm!important;
+  font-size:var(--weekly-print-week-font,6pt)!important;
+  line-height:1.15!important;
+  overflow-wrap:anywhere;
+ }
+ .weekly-print-table thead th span{
+  display:block;font-size:var(--weekly-print-date-font,5.5pt)!important;
+  line-height:1.1!important;margin-top:0.4mm;
+  overflow-wrap:normal;white-space:nowrap;
+ }
+ .weekly-print-table tr.weekly-print-group th{
+  height:var(--weekly-print-group,6mm)!important;
+  padding:0.6mm 1.3mm!important;
+  font-size:var(--weekly-print-task-font,8pt)!important;
+  line-height:1.1!important;
+ }
+ .weekly-print-table .weekly-print-work-title{
+  font-size:var(--weekly-print-task-font,8pt)!important;
+  line-height:1.2!important;
+  overflow-wrap:anywhere;
+ }
+ .weekly-print-table .weekly-print-task-details{
+  font-size:calc(var(--weekly-print-task-font,8pt)*0.73)!important;
+  margin-top:0.3mm!important;line-height:1.1!important;
+ }
+ .weekly-print-table .weekly-print-owner-text,.weekly-print-table .weekly-print-progress-text{
+  font-size:calc(var(--weekly-print-task-font,8pt)*0.8)!important;
+  line-height:1.25!important;white-space:normal!important;
+ }
+ .weekly-print-table .weekly-print-week{padding:0.5mm 0.2mm!important}
+ .weekly-print-table .weekly-week-track{height:3.6mm!important}
+ .weekly-print-table .weekly-placeholder{height:2.4mm!important}
+ .weekly-print-top{padding-bottom:2mm;margin-bottom:2mm}
+ .weekly-print-identity img{height:11mm;width:11mm}
+ .weekly-print-identity strong{font-size:10pt}
+ .weekly-print-identity p{font-size:7pt;margin-top:0.5mm}
+ .weekly-print-title{margin:2mm 0;gap:1mm}
+ .weekly-print-title h2{font-size:11pt}
+ .weekly-print-title p{font-size:7.5pt}
+ .weekly-print-metrics{padding:1.6mm 2mm;margin-bottom:2mm;gap:4mm;font-size:7.5pt}
+ .weekly-print-foot{font-size:7pt;margin-top:2mm}
+ html[data-paper-size="A4"] .weekly-print-table th,html[data-paper-size="A4"] .weekly-print-table td{
+  height:var(--weekly-print-row,6mm)!important;padding:0.3mm 0.35mm!important
+ }
+ html[data-paper-size="A4"] .weekly-print-table thead th{
+  font-size:var(--weekly-print-week-font,5pt)!important;height:6.2mm!important
+ }
+ html[data-paper-size="A4"] .weekly-print-table .weekly-print-work-title{
+  font-size:var(--weekly-print-task-font,7pt)!important
+ }
+ html[data-paper-size="A2"] .weekly-print-table .weekly-print-work-title,
+ html[data-paper-size="A1"] .weekly-print-table .weekly-print-work-title{
+  font-size:var(--weekly-print-task-font,9pt)!important
+ }
+ @page {orphans:1;widows:1}
+}
