@@ -307,17 +307,34 @@ function printLayout(stage,weekCount){
  const small=weekCount>=18;
  const taskFont=(paperPrefs.size==='A1'?10.6:paperPrefs.size==='A2'?9.3:paperPrefs.size==='A3'?8.4:7.6)*
   (row<4.5?.75:row<6?.87:1);
- const weekFont=(size.width*0.52/weekCount<6.5?5:small?6:paperPrefs.size==='A4'?6.2:7.2);
+ const weekWidth=size.width*0.50/Math.max(1,weekCount);
+ const weekFont=Math.max(4.3,Math.min(7.4,weekWidth*.72));
+ const dateFont=Math.max(3.6,Math.min(6.1,weekWidth*.61));
+ const yearFont=Math.max(3.3,Math.min(4.8,weekWidth*.48));
  return 'style="--weekly-print-row:'+row.toFixed(2)+'mm;'+
   '--weekly-print-group:'+groupHeight.toFixed(2)+'mm;'+
   '--weekly-print-task-font:'+taskFont.toFixed(2)+'pt;'+
   '--weekly-print-week-font:'+weekFont.toFixed(2)+'pt;'+
-  '--weekly-print-date-font:'+(compact?5.3:6.5)+'pt;"';
+  '--weekly-print-date-font:'+dateFont.toFixed(2)+'pt;'+
+  '--weekly-print-year-font:'+yearFont.toFixed(2)+'pt;"';
 }
 function printWeekDate(date){
  if(!date)return '';
  const buddhistYear=String(date.getUTCFullYear()+543).slice(-2);
  return String(date.getUTCDate()).padStart(2,'0')+'/'+String(date.getUTCMonth()+1).padStart(2,'0')+'/'+buddhistYear;
+}
+// Printing a full dd/mm/yy in each narrow weekly cell makes adjacent columns
+// overlap. Keep the full date in the accessible title, but show it as three
+// compact rows: dd/mm, dd/mm, and the Buddhist year (e.g. 69 or 69–70).
+function printWeekDayMonth(date){
+ if(!date)return '';
+ return String(date.getUTCDate()).padStart(2,'0')+'/'+String(date.getUTCMonth()+1).padStart(2,'0');
+}
+function printWeekYearLabel(first,last){
+ if(!first||!last)return '';
+ const a=String(first.getUTCFullYear()+543).slice(-2);
+ const b=String(last.getUTCFullYear()+543).slice(-2);
+ return a===b?'พ.ศ. '+a:'พ.ศ. '+a+'–'+b;
 }
 // Embed the existing company-mark SVG in each print page to avoid a missing logo.png
 // or a delayed image request when Chrome opens Print/Save as PDF.
@@ -340,9 +357,10 @@ function printSheet(installment,pageNo,pageCount){
   '<th class="print-col-owner">ผู้รับผิดชอบ</th>'+
   '<th class="print-col-progress">แผน / จริง</th>'+
   weeks.map((week,j)=>'<th class="weekly-print-week'+(currentWeek(week)?' weekly-now':'')+'" title="สัปดาห์ที่ '+(j+1)+' · '+printWeekDate(week.start)+' ถึง '+printWeekDate(week.end)+'">'+
-   'ส.'+(j+1)+
-   '<span class="weekly-print-week-start">'+printWeekDate(week.start)+'</span>'+
-   '<span class="weekly-print-week-end">'+printWeekDate(week.end)+'</span></th>').join('')+
+   '<span class="weekly-print-week-number">ส.'+(j+1)+'</span>'+
+   '<span class="weekly-print-week-start">'+printWeekDayMonth(week.start)+'</span>'+
+   '<span class="weekly-print-week-end">'+printWeekDayMonth(week.end)+'</span>'+
+   '<span class="weekly-print-week-year">'+printWeekYearLabel(week.start,week.end)+'</span></th>').join('')+
   '</tr></thead>';
  let rows='';
  for(const group of stage.groups||[]){
